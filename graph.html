@@ -1,1744 +1,575 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Money Notebook Pro</title>
-
-<link rel="manifest" href="manifest.json">
-
-<link rel="icon" type="image/png" href="https://i.ibb.co/gL2mGNzg/Gemini-Generated-Image-jdeu6vjdeu6vjdeu.png">
-<link rel="apple-touch-icon" href="https://i.ibb.co/gL2mGNzg/Gemini-Generated-Image-jdeu6vjdeu6vjdeu.png">
-
-<meta name="theme-color" content="#050508">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Money Pro">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<title>Money Pro Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* PRESERVED CORE STYLES */
-:root {
-  --bg: #050508;
-  --text: #e8e8f0;
-  --text-dim: #cbd5e1;
-  --text-muted: #94a3b8;
-  --green: #34d399;
-  --green-dim: rgba(52,211,153,0.15);
-  --red: #fb7185;
-  --red-dim: rgba(251,113,133,0.15);
-  --blue: #60a5fa;
-  --blue-dim: rgba(96,165,250,0.15);
-  --purple: #c084fc;
-  --purple-dim: rgba(192,132,252,0.15);
-  --gold: #fbbf24;
-  --gold-dim: rgba(251,191,36,0.15);
-  --radius: 20px;
-  --radius-sm: 12px;
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-}
+  :root {
+    --bg: #050508;
+    --text: #e8e8f0;
+    --text-dim: #cbd5e1;
+    --green: #34d399;
+    --red: #fb7185;
+    --blue: #60a5fa;
+    --gold: #fbbf24;
+    --purple: #c084fc;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
 
-/* Light Theme Overrides */
-[data-theme="light"] {
-  --bg: #f8fafc;
-  --text: #0f172a;
-  --text-dim: #334155;
-  --text-muted: #64748b;
-}
-[data-theme="light"] .card, 
-[data-theme="light"] .stat-card, 
-[data-theme="light"] .tx-item, 
-[data-theme="light"] .user-card, 
-[data-theme="light"] .sheet-card, 
-[data-theme="light"] .modal-box, 
-[data-theme="light"] .loader-card, 
-[data-theme="light"] .setup-card, 
-[data-theme="light"] .toast {
-  background: rgba(255, 255, 255, 0.75) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05) !important;
-}
-[data-theme="light"] .app-header, 
-[data-theme="light"] .bottom-nav, 
-[data-theme="light"] .desktop-topbar, 
-[data-theme="light"] .sidebar {
-  background: rgba(248, 250, 252, 0.8) !important;
-  border-color: rgba(0,0,0,0.1) !important;
-}
-[data-theme="light"] .balance-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(240,248,255,0.9)) !important;
-  border: 1px solid rgba(96,165,250,0.4) !important;
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.1) !important;
-}
-[data-theme="light"] .balance-amount,
-[data-theme="light"] .balance-label {
-  color: #0f172a;
-}
-[data-theme="light"] .balance-label {
-  color: #2563eb;
-}
-[data-theme="light"] .input, 
-[data-theme="light"] .toggle-pill, 
-[data-theme="light"] .filter-btn, 
-[data-theme="light"] .cat-chip, 
-[data-theme="light"] .amount-input-wrap, 
-[data-theme="light"] .user-avatar {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border: 1px solid rgba(0,0,0,0.08) !important;
-}
-[data-theme="light"] select.input option { background: #ffffff; color: var(--text); }
-[data-theme="light"] input[type="date"].input::-webkit-calendar-picker-indicator, 
-[data-theme="light"] input[type="time"].input::-webkit-calendar-picker-indicator { filter: none; }
-[data-theme="light"] .modal-overlay { background: rgba(255,255,255,0.5); }
-[data-theme="light"] .btn-ghost { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); color: var(--text); }
-[data-theme="light"] .btn-ghost:hover { border-color: rgba(0,0,0,0.2); }
-[data-theme="light"] .modal-header, [data-theme="light"] .modal-footer, [data-theme="light"] .sidebar-footer, [data-theme="light"] .settings-row { border-color: rgba(0,0,0,0.08) !important; }
-[data-theme="light"] #bg-grid { background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); }
+  [data-theme="light"] {
+    --bg: #f8fafc;
+    --text: #0f172a;
+    --text-dim: #334155;
+  }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg);
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-/* ========================================================= */
-/* FEATURE 4: GLOBAL GLOSSY/GLASSMORPHISM UI ENHANCEMENTS      */
-/* ========================================================= */
-body {
-  font-family: var(--font-body);
-  color: var(--text);
-  -webkit-tap-highlight-color: transparent;
-  overscroll-behavior: none;
-  min-height: 100vh;
-  overflow-x: hidden;
-  background-color: var(--bg);
-  transition: background-color 0.3s;
-}
+  #app-background {
+    position: fixed; inset: 0; z-index: -2; 
+    background-size: cover; background-position: center; 
+    background-attachment: fixed;
+    background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
+    transition: opacity 0.3s;
+  }
 
-#app-background {
-  position: fixed; 
-  inset: 0; 
-  z-index: -2; 
-  background-size: cover; 
-  background-position: center; 
-  background-attachment: fixed;
-  background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
-  transition: opacity 0.3s;
-}
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    padding-bottom: 120px; /* Space for bottom nav */
+  }
 
-/* Glassy Cards and Modals */
-.card, .stat-card, .tx-item, .user-card, .sheet-card, .modal-box, .loader-card, .setup-card, .toast {
-  background: rgba(15, 15, 25, 0.55) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
-}
+  /* Glassmorphism Header & Cards */
+  .glass-panel {
+    background: rgba(15, 15, 25, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  }
 
-/* Premium Gradient Balance Card */
-.balance-card {
-  background: linear-gradient(135deg, rgba(13,24,41,0.7), rgba(10,18,32,0.7)) !important;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(96,165,250,0.25) !important;
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4) !important;
-}
+  [data-theme="light"] .glass-panel {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0,0,0,0.1);
+  }
 
-/* Glassy Navigations & Headers */
-.app-header, .bottom-nav, .desktop-topbar, .sidebar {
-  background: rgba(5, 5, 8, 0.6) !important;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-color: rgba(255,255,255,0.08) !important;
-}
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
 
-/* Glassy Inputs & Pills */
-.input, .toggle-pill, .filter-btn, .cat-chip, .amount-input-wrap, .user-avatar {
-  background: rgba(255, 255, 255, 0.05) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.08) !important;
-}
-.input:focus, .amount-input-wrap:focus-within {
-  border-color: var(--blue) !important;
-  box-shadow: 0 0 0 3px rgba(96,165,250,0.15) !important;
-}
+  .title {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-::-webkit-scrollbar { width: 0; height: 0; }
-::selection { background: rgba(96,165,250,0.25); }
+  .controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
 
-/* BG Overlays */
-#bg-mesh { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-.mesh-orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; animation: meshDrift 15s ease-in-out infinite alternate; }
-.mesh-orb:nth-child(1) { width: 600px; height: 600px; background: radial-gradient(circle, #2563eb, transparent); top: -200px; left: -200px; }
-.mesh-orb:nth-child(2) { width: 500px; height: 500px; background: radial-gradient(circle, #db2777, transparent); bottom: -150px; right: -150px; animation-delay: -7s; }
-#bg-grid {
-  position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
-}
+  select, .btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+  }
 
-/* Toast */
-#toastContainer {
-  position: fixed; top: max(16px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
-  z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 420px;
-}
-.toast { border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; color: var(--text); animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards, toastOut 0.3s ease 3.2s forwards; }
-.toast .toast-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
-.toast.success .toast-icon { background: var(--green-dim); color: var(--green); }
-.toast.error .toast-icon { background: var(--red-dim); color: var(--red); }
-.toast.info .toast-icon { background: var(--blue-dim); color: var(--blue); }
-.toast.warning .toast-icon { background: var(--gold-dim); color: var(--gold); }
-@keyframes toastIn { from { opacity:0; transform:translateY(-16px) scale(0.9); } to { opacity:1; transform:translateY(0) scale(1); } }
-@keyframes toastOut { from { opacity:1; } to { opacity:0; transform:scale(0.9); } }
+  [data-theme="light"] select, [data-theme="light"] .btn {
+    background: rgba(0,0,0,0.05);
+    border-color: rgba(0,0,0,0.1);
+  }
 
-/* Loader */
-#cloudLoader { position: fixed; inset: 0; z-index: 500; display: none; align-items: center; justify-content: center; background: rgba(5,5,8,0.7); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
-#cloudLoader.active { display: flex; }
-.loader-card { border-radius: var(--radius); padding: 28px 36px; display: flex; align-items: center; gap: 16px; animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-.loader-spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--blue); animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes popIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }
+  select option { background: #12121c; color: #fff; }
 
-/* Modal */
-.modal-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.25s ease; }
-.modal-overlay.open { display: flex; opacity: 1; }
-.modal-box { border-radius: var(--radius); width: 100%; max-width: 440px; transform: scale(0.92) translateY(20px); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
-.modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
-.modal-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
-.modal-close { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; }
-.modal-close:hover { background: var(--red-dim); color: var(--red); border-color:rgba(251,113,133,0.3); }
-.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
-.modal-footer { padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; gap: 12px; flex-shrink: 0; }
+  /* Grid Layout */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+  }
 
-/* Buttons */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: var(--radius-sm); padding: 12px 20px; font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; border: none; outline: none; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
-.btn:active { transform: scale(0.95); }
-.btn-primary { background: var(--blue); color: #fff; box-shadow: 0 8px 24px -4px rgba(96,165,250,0.4); }
-.btn-primary:hover { filter: brightness(1.1); }
-.btn-success { background: var(--green); color: #000; box-shadow: 0 8px 24px -4px rgba(52,211,153,0.35); }
-.btn-danger { background: var(--red); color: #fff; }
-.btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-dim); }
-.btn-ghost:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
-.btn-full { width: 100%; }
-.btn-lg { padding: 16px 24px; font-size: 15px; border-radius: var(--radius); }
+  .chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+  }
 
-/* Inputs */
-.input-group { display: flex; flex-direction: column; gap: 6px; }
-.input-label { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; }
-.input { border-radius: var(--radius-sm); padding: 13px 16px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; transition: all 0.2s; width: 100%; -webkit-appearance: none; appearance: none; }
-.input::placeholder { color: var(--text-muted); }
-.input-icon-wrap { position: relative; }
-.input-icon-wrap .input { padding-left: 44px; }
-.input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 14px; pointer-events: none; }
-select.input { cursor: pointer; }
-select.input option { background: #12121c; color: var(--text); }
-input[type="date"].input::-webkit-calendar-picker-indicator, input[type="time"].input::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.6; }
+  .chart-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 
-/* Cards */
-.card { border-radius: var(--radius); padding: 20px; transition: border-color 0.2s; }
-.card:hover { border-color: rgba(255,255,255,0.2) !important; }
-.sheet-card { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 10px; transition: all 0.2s; padding: 16px; border-radius: 16px; }
-.sheet-card.active { border-color: var(--blue) !important; background: rgba(96,165,250,0.1) !important; }
-.sheet-card:hover { border-color: rgba(255,255,255,0.2) !important; }
-.sheet-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; background: var(--blue); color: #fff; }
+  /* Bottom Navigation to match index.html */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(5, 5, 8, 0.6);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 10px 8px; padding-bottom: max(10px, env(safe-area-inset-bottom));
+    display: flex; align-items: center; justify-content: space-around;
+  }
+  [data-theme="light"] .bottom-nav {
+    background: rgba(248, 250, 252, 0.8);
+    border-color: rgba(0,0,0,0.1);
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px; 
+    cursor: pointer; padding: 6px 12px; border-radius: 12px; 
+    transition: all 0.2s; min-width: 52px; text-decoration: none;
+  }
+  .nav-item .nav-icon { font-size: 17px; color: #94a3b8; transition: all 0.2s; }
+  .nav-item .nav-label { font-size: 9px; font-weight: 700; color: #94a3b8; letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.2s; }
+  
+  .nav-item.active .nav-icon, .nav-item.active .nav-label { color: var(--gold); }
+  .nav-item:not(.active):hover .nav-icon, .nav-item:not(.active):hover .nav-label { color: var(--blue); }
+  
+  .nav-fab {
+    width: 50px; height: 50px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 20px; cursor: pointer; text-decoration: none;
+    box-shadow: 0 8px 24px rgba(96,165,250,0.4); border: none; outline: none; transform: translateY(-4px);
+  }
+  .nav-fab:hover { transform: translateY(-8px) scale(1.05); }
 
-/* Toggle Pill */
-.toggle-pill { display: flex; border-radius: 100px; padding: 4px; gap: 4px; }
-.toggle-pill-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 16px; border-radius: 100px; cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 600; border: none; outline: none; transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1); color: var(--text-dim); background: transparent; }
-.toggle-pill-btn.active-income, .toggle-pill-btn.active-theme { background: var(--blue-dim) !important; color: var(--blue); border: 1px solid rgba(96,165,250,0.3) !important; }
-.toggle-pill-btn.active-expense { background: var(--red-dim) !important; color: var(--red); border: 1px solid rgba(251,113,133,0.3) !important; }
+  /* Loader */
+  #loader {
+    position: fixed; inset: 0; z-index: 500;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(5,5,8,0.8); backdrop-filter: blur(10px);
+  }
+  .spinner {
+    width: 50px; height: 50px;
+    border: 4px solid rgba(255,255,255,0.1);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Chip */
-.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
-.chip-green { background: var(--green-dim); color: var(--green); border-color: rgba(52,211,153,0.2); }
-.chip-red { background: var(--red-dim); color: var(--red); border-color: rgba(251,113,133,0.2); }
+  @media (min-width: 768px) {
+    .bottom-nav { display: none; }
+    .container { padding-bottom: 40px; }
+  }
 
-/* View Sections */
-.view-section { display: none; }
-.view-section.active { display: block; animation: fadeUp 0.4s cubic-bezier(0.2,0.8,0.2,1) forwards; }
-@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-
-/* Setup Screen */
-#view-setup { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 20px; position: relative; z-index: 50; }
-#view-setup.active { display: flex; }
-.setup-card { border-radius: 28px; padding: 40px 32px; width: 100%; max-width: 460px; position: relative; overflow: hidden; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
-
-/* App Status Badge */
-.sync-status-badge { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 100px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-.sync-status-badge.online { color: var(--green); border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.05); }
-.sync-status-badge.offline { color: var(--red); border-color: rgba(251,113,133,0.3); background: rgba(251,113,133,0.05); }
-.sync-status-badge.syncing { color: var(--blue); border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.05); }
-
-/* Header & Nav */
-.app-header { position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 20px; height: 60px; display: flex; align-items: center; justify-content: space-between; padding-top: env(safe-area-inset-top, 0); }
-.header-logo { display: flex; align-items: center; gap: 10px; }
-.header-title { font-family: var(--font-display); font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
-.header-actions { display: flex; align-items: center; gap: 8px; }
-.header-btn { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-dim); display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; transition: all 0.2s; position: relative; }
-.header-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
-.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); position: absolute; top: 5px; right: 5px; box-shadow: 0 0 5px var(--green); animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
-
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; border-top: 1px solid rgba(255,255,255,0.08); padding: 10px 8px; padding-bottom: max(10px, env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-around; }
-.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 6px 12px; border-radius: var(--radius-sm); transition: all 0.2s; min-width: 52px; }
-.nav-item .nav-icon { font-size: 17px; color: var(--text-muted); transition: all 0.2s; }
-.nav-item .nav-label { font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.2s; }
-.nav-item.active .nav-icon { color: var(--blue); transform: translateY(-2px); }
-.nav-item.active .nav-label { color: var(--blue); }
-.nav-fab { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg,var(--blue),var(--purple)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; cursor: pointer; box-shadow: 0 8px 24px rgba(96,165,250,0.4); border: none; outline: none; transform: translateY(-4px); }
-.nav-fab:hover { transform: translateY(-8px) scale(1.05); }
-
-/* Page Content */
-.page-content { max-width: 800px; margin: 0 auto; padding: 20px 16px; padding-bottom: 110px; }
-
-/* Balance Card */
-.balance-card { position: relative; border-radius: 22px; overflow: hidden; padding: 24px; margin-bottom: 16px; }
-.balance-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(96,165,250,0.6),rgba(192,132,252,0.4),transparent); }
-.balance-card-bg { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
-.balance-card-orb { position:absolute; border-radius:50%; filter:blur(60px); }
-.balance-card-orb:nth-child(1) { width:200px; height:200px; background:rgba(96,165,250,0.15); top:-50px; right:-50px; }
-.balance-card-orb:nth-child(2) { width:150px; height:150px; background:rgba(192,132,252,0.1); bottom:-40px; left:20px; }
-.balance-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: rgba(96,165,250,0.9); text-transform: uppercase; margin-bottom: 6px; }
-.balance-amount { font-family: var(--font-display); font-size: clamp(32px,8vw,48px); font-weight: 800; letter-spacing: -0.03em; color: #fff; line-height: 1.1; }
-.balance-amount .currency { font-size: 0.5em; vertical-align: super; margin-right: 2px; opacity: 0.7; }
-.balance-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-
-/* UPI Launch Buttons */
-.upi-launch-row { display: flex; gap: 10px; margin-top: 16px; }
-.upi-launch-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 16px; border-radius: 12px; cursor: pointer; border: none; outline: none; font-family: var(--font-body); font-size: 13px; font-weight: 700; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); }
-.upi-launch-btn:active { transform: scale(0.95); }
-.upi-btn-gpay { background: #1a73e8; color: #fff; box-shadow: 0 4px 16px rgba(26,115,232,0.35); }
-.upi-btn-phonepe { background: #5f259f; color: #fff; box-shadow: 0 4px 16px rgba(95,37,159,0.35); }
-.upi-btn-paytm { background: #00baf2; color: #fff; box-shadow: 0 4px 16px rgba(0,186,242,0.35); }
-.upi-btn-bhim { background: #f26522; color: #fff; box-shadow: 0 4px 16px rgba(242,101,34,0.35); }
-
-/* Stats Grid */
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.stat-card { border-radius: 16px; padding: 16px; position: relative; overflow: hidden; transition: all 0.2s; }
-.stat-card:hover { border-color: rgba(255,255,255,0.2) !important; transform: translateY(-2px); }
-.stat-card .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; margin-bottom: 10px; }
-.stat-card .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 3px; }
-.stat-card .stat-value { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
-.stat-card.income .stat-icon { background: var(--green-dim); color: var(--green); }
-.stat-card.income .stat-value { color: var(--green); }
-.stat-card.expense .stat-icon { background: var(--red-dim); color: var(--red); }
-.stat-card.expense .stat-value { color: var(--red); }
-
-.analytics-card-interactive { cursor: pointer; border-color: rgba(251,191,36,0.3) !important; background: rgba(251,191,36,0.05) !important; }
-.analytics-card-interactive:hover { border-color: var(--gold) !important; background: rgba(251,191,36,0.1) !important; transform: translateY(-2px); }
-
-.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; margin-top: 20px; }
-.section-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.01em; color: var(--text); }
-.section-action { font-size: 12px; font-weight: 600; color: var(--blue); cursor: pointer; }
-
-/* Transaction Items */
-.tx-list { display: flex; flex-direction: column; gap: 8px; }
-.tx-item { border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; animation: slideIn 0.35s cubic-bezier(0.2,0.8,0.2,1) backwards; }
-.tx-item:hover { border-color: rgba(255,255,255,0.2) !important; transform: translateX(3px); }
-@keyframes slideIn { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
-.tx-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
-.tx-icon.income { background: var(--green-dim); }
-.tx-icon.expense { background: var(--red-dim); }
-.tx-details { flex: 1; min-width: 0; }
-.tx-category { font-weight: 600; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tx-sub { font-size: 11px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tx-meta { text-align: right; flex-shrink: 0; }
-.tx-amount { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
-.tx-amount.income { color: var(--green); }
-.tx-amount.expense { color: var(--red); }
-.tx-date { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
-
-/* UPI Badge */
-.upi-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 5px; background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(192,132,252,0.3); margin-left: 4px; }
-
-/* Amount Input */
-.amount-input-wrap { display: flex; align-items: center; transition: all 0.2s; border-radius: var(--radius-sm); }
-.amount-currency { padding: 0 8px 0 16px; font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--text-dim); }
-.amount-input { flex: 1; background: transparent; border: none; outline: none; font-family: var(--font-display); font-size: 32px; font-weight: 800; color: var(--text); padding: 14px 16px 14px 0; width: 100%; letter-spacing: -0.02em; }
-
-/* Category Grid */
-.cat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
-@media (min-width: 420px) { .cat-grid { grid-template-columns: repeat(4,1fr); } }
-.cat-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: 11px; cursor: pointer; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); font-size: 17px; }
-.cat-chip span { font-size: 10px; font-weight: 600; color: var(--text-dim); }
-.cat-chip.selected { border-color: var(--blue) !important; background: var(--blue-dim) !important; }
-.cat-chip.selected span { color: var(--blue); }
-.cat-chip:hover:not(.selected) { border-color: rgba(255,255,255,0.2) !important; transform: scale(1.04); }
-
-/* User Cards */
-.user-card { border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; margin-bottom:10px; }
-.user-card:hover { border-color: rgba(255,255,255,0.2) !important; transform: translateY(-2px); }
-.user-card.active-user { border-color: rgba(96,165,250,0.4) !important; background: rgba(96,165,250,0.1) !important; }
-.user-avatar { width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 17px; font-weight: 800; flex-shrink: 0; }
-.user-info { flex: 1; min-width: 0; }
-.user-name { font-weight: 700; font-size: 14px; color: var(--text); }
-.user-savings-row { font-size: 11px; color: var(--text-dim); }
-
-/* Settings */
-.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
-.settings-row:last-child { border-bottom: none; }
-.settings-row-label { display: flex; flex-direction: column; gap: 2px; }
-.settings-row-title { font-size: 14px; font-weight: 600; color: var(--text); }
-.settings-row-sub { font-size: 11px; color: var(--text-dim); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.settings-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 12px; flex-shrink: 0; }
-
-/* Filter Bar */
-.filter-bar { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: none; }
-.filter-btn { white-space: nowrap; padding: 7px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
-.filter-btn.active { background: var(--blue-dim) !important; border-color: rgba(96,165,250,0.4) !important; color: var(--blue); }
-
-/* Empty State */
-.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
-.empty-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.3; }
-.empty-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--text-dim); margin-bottom: 6px; }
-
-/* Confirm Dialog */
-.confirm-overlay { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: none; align-items: center; justify-content: center; padding: 20px; }
-.confirm-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
-@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-.confirm-box { border-radius: var(--radius); padding: 28px; width: 100%; max-width: 360px; animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); text-align: center; }
-.confirm-icon { font-size: 34px; margin-bottom: 14px; }
-.confirm-title { font-family: var(--font-display); font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--text); }
-.confirm-msg { font-size: 13px; color: var(--text-dim); margin-bottom: 22px; line-height: 1.6; }
-.confirm-btns { display: flex; gap: 10px; }
-
-/* Progress Bar */
-.progress-bar { height: 3px; background: rgba(255,255,255,0.1); border-radius: 100px; overflow: hidden; margin-top: 10px; }
-.progress-fill { height: 100%; border-radius: 100px; transition: width 0.8s cubic-bezier(0.2,0.8,0.2,1); }
-
-/* Sidebar (desktop) */
-@media (min-width: 768px) {
-  .bottom-nav { display: none; }
-  .sidebar { width: 240px; flex-shrink: 0; border-right: 1px solid rgba(255,255,255,0.08); position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; display: flex; flex-direction: column; padding: 24px 14px; overflow-y: auto; }
-  .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 8px 10px; margin-bottom: 28px; }
-  .sidebar-title { font-family: var(--font-display); font-size: 16px; font-weight: 800; color: var(--text); }
-  .sidebar-sub { font-size: 10px; color: var(--text-dim); }
-  .sidebar-nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
-  .sidebar-nav-item { display: flex; align-items: center; gap: 11px; padding: 11px 13px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; color: var(--text-dim); font-size: 13px; font-weight: 600; border: 1px solid transparent; }
-  .sidebar-nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
-  .sidebar-nav-item.active { background: var(--blue-dim); color: var(--blue); border-color: rgba(96,165,250,0.2); }
-  .sidebar-nav-item i { width: 18px; text-align: center; font-size: 14px; }
-  .sidebar-add-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px; border-radius: var(--radius-sm); background: linear-gradient(135deg,var(--blue),var(--purple)); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 10px; border: none; outline: none; box-shadow: 0 8px 24px rgba(96,165,250,0.3); transition: all 0.2s; }
-  .sidebar-add-btn:hover { transform: translateY(-2px); }
-  .sidebar-footer { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
-  .main-area { margin-left: 240px; flex: 1; }
-  .app-header { display: none; }
-  .desktop-topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(5,5,8,0.6); backdrop-filter: blur(24px); position: sticky; top: 0; z-index: 50; }
-  .desktop-topbar-title { font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--text); }
-  .desktop-topbar-actions { display: flex; gap: 10px; align-items: center; }
-  .page-content { padding: 24px 28px; padding-bottom: 40px; max-width: 900px; }
-  .stats-grid { grid-template-columns: repeat(4,1fr); }
-  .mobile-only { display: none !important; }
-}
-@media (max-width: 767px) {
-  .desktop-only { display: none !important; }
-  .main-area { margin-left: 0; }
-  .desktop-topbar { display: none; }
-}
-
-.others-section { display: none; }
-.others-section.open { display: block; margin-top: 12px; }
-.search-highlight { background: rgba(96,165,250,0.2); color: var(--blue); border-radius: 3px; padding: 0 2px; }
-.graph-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 6px 12px; border-radius: var(--radius-sm); transition: all 0.2s; min-width: 52px; }
-.graph-nav-btn .nav-icon { font-size: 17px; color: var(--text-muted); transition: all 0.2s; }
-.graph-nav-btn .nav-label { font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.2s; }
-.graph-nav-btn:hover .nav-icon, .graph-nav-btn:hover .nav-label { color: var(--gold); }
 </style>
 </head>
 <body>
 
 <div id="app-background"></div>
-<div id="bg-mesh" aria-hidden="true">
-  <div class="mesh-orb"></div><div class="mesh-orb"></div><div class="mesh-orb"></div>
-</div>
-<div id="bg-grid" aria-hidden="true"></div>
-<div id="toastContainer" role="alert" aria-live="polite"></div>
 
-<div id="cloudLoader" aria-hidden="true">
-  <div class="loader-card card">
-    <div class="loader-spinner"></div>
-    <span id="loaderText" style="font-weight:700;font-size:15px;color:var(--text);">Syncing…</span>
-  </div>
+<div id="loader">
+  <div class="spinner"></div>
+  <h2 style="font-family: var(--font-display);">Analyzing Cloud Data...</h2>
 </div>
 
-<div id="confirmOverlay" class="confirm-overlay">
-  <div class="confirm-box card">
-    <div class="confirm-icon" id="confirmIcon">⚠️</div>
-    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
-    <div class="confirm-msg" id="confirmMsg">This cannot be undone.</div>
-    <div class="confirm-btns">
-      <button class="btn btn-ghost btn-full" onclick="closeConfirm()">Cancel</button>
-      <button class="btn btn-danger btn-full" id="confirmBtn" onclick="confirmAction()">Delete</button>
-    </div>
-  </div>
-</div>
-
-<div id="analyticsModal" class="modal-overlay">
-  <div class="modal-box card" style="max-width:380px;">
-    <div class="modal-header" style="border:none; padding-bottom:10px;">
-      <div class="modal-title"><i class="fa-solid fa-chart-pie" style="color:var(--gold);"></i> Analytics</div>
-      <button class="modal-close" onclick="toggleModal('analyticsModal',false)"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body" style="text-align:center; padding: 10px 24px 32px;">
-      <div class="filter-bar" style="justify-content:center; margin-bottom: 24px;" id="analyticsFilters">
-        <button class="filter-btn" onclick="setAnalyticsPeriod('today', this)">Today</button>
-        <button class="filter-btn active" onclick="setAnalyticsPeriod('month', this)">This Month</button>
-        <button class="filter-btn" onclick="setAnalyticsPeriod('year', this)">This Year</button>
-      </div>
-      <div style="font-size:13px; color:var(--text-dim); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;" id="analyticsTitleDesc">This month's total expenses</div>
-      <div style="font-family:var(--font-display); font-size:42px; font-weight:800; color:var(--gold); margin-top:8px;">₹<span id="analyticsAmountDisplay">0</span></div>
+<div class="container" style="display: none;" id="main-content">
+  <div class="glass-panel header">
+    <div class="title"><i class="fa-solid fa-chart-pie" style="color: var(--gold);"></i> Analytics</div>
+    <div class="controls">
+      <select id="userFilter" onchange="applyFilters()">
+        <option value="all">All Users</option>
+      </select>
+      <select id="catFilter" onchange="applyFilters()">
+        <option value="all">All Categories</option>
+      </select>
+      <select id="timeFilter" onchange="applyFilters()">
+        <option value="all">All Time</option>
+        <option value="year">This Year</option>
+        <option value="month" selected>This Month</option>
+        <option value="week">This Week</option>
+        <option value="day">Today</option>
+      </select>
+      <button class="btn desktop-only" onclick="window.location.href='index.html'" style="color: var(--blue); border-color: rgba(96,165,250,0.3);"><i class="fa-solid fa-arrow-left"></i> Home</button>
     </div>
   </div>
-</div>
 
-<div id="sheetModal" class="modal-overlay">
-  <div class="modal-box card" style="max-width:400px;">
-    <div class="modal-header">
-      <div class="modal-title"><i class="fa-solid fa-file-excel" style="color:var(--green);"></i> Add Workspace</div>
-      <button class="modal-close" onclick="toggleModal('sheetModal',false)"><i class="fa-solid fa-xmark"></i></button>
+  <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+    <div class="glass-panel" style="border-left: 4px solid var(--green); padding: 15px;">
+      <div class="chart-title" style="font-size:12px; margin-bottom:8px;">Total Income</div>
+      <div style="font-size: 24px; font-weight: 800; color: var(--green);">₹<span id="sumIncome">0</span></div>
     </div>
-    <div class="modal-body">
-      <p style="font-size:12px; color:var(--text-dim); margin-bottom:18px;">Connect a new Google Sheet to isolate data (e.g., Family vs Business).</p>
-      <div class="input-group" style="margin-bottom:14px;">
-        <label class="input-label">Workspace Name</label>
-        <input class="input" type="text" id="sheetNameInput" placeholder="e.g., Business Account">
-      </div>
-      <div class="input-group">
-        <label class="input-label">Apps Script URL</label>
-        <input class="input" type="url" id="sheetUrlInput" placeholder="Paste Google Apps Script URL here...">
-      </div>
+    <div class="glass-panel" style="border-left: 4px solid var(--red); padding: 15px;">
+      <div class="chart-title" style="font-size:12px; margin-bottom:8px;">Total Expense</div>
+      <div style="font-size: 24px; font-weight: 800; color: var(--red);">₹<span id="sumExpense">0</span></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost btn-full" onclick="toggleModal('sheetModal',false)">Cancel</button>
-      <button class="btn btn-primary btn-full" onclick="saveNewSheet()">Save Sheet</button>
+    <div class="glass-panel" style="border-left: 4px solid var(--blue); padding: 15px;">
+      <div class="chart-title" style="font-size:12px; margin-bottom:8px;">Net Savings</div>
+      <div style="font-size: 24px; font-weight: 800; color: var(--blue);">₹<span id="sumNet">0</span></div>
     </div>
   </div>
-</div>
 
-<div id="catModal" class="modal-overlay">
-  <div class="modal-box card" style="max-width:380px;">
-    <div class="modal-header">
-      <div class="modal-title"><i class="fa-solid fa-tags" style="color:var(--blue);"></i> Add Category</div>
-      <button class="modal-close" onclick="toggleModal('catModal',false)"><i class="fa-solid fa-xmark"></i></button>
+  <div class="dashboard-grid">
+    <div class="glass-panel">
+      <div class="chart-title">Income vs Expense</div>
+      <div class="chart-container"><canvas id="donutChart"></canvas></div>
     </div>
-    <div class="modal-body">
-      <div class="toggle-pill" style="margin-bottom:18px;">
-        <button class="toggle-pill-btn active-income" id="btnCatInc" onclick="setNewCatType('income')">Income</button>
-        <button class="toggle-pill-btn" id="btnCatExp" onclick="setNewCatType('expense')">Expense</button>
-      </div>
-      <div class="input-group" style="margin-bottom:14px;">
-        <label class="input-label">Category Name</label>
-        <input class="input" type="text" id="catNameInput" placeholder="e.g., Side Hustle">
-      </div>
-      <div class="input-group">
-        <label class="input-label">Emoji Icon</label>
-        <input class="input" type="text" id="catEmojiInput" placeholder="e.g., 💻" maxlength="2" style="font-size:24px; text-align:center;">
-      </div>
+    <div class="glass-panel" style="grid-column: span 2;">
+      <div class="chart-title">Cash Flow Trend</div>
+      <div class="chart-container"><canvas id="lineChart"></canvas></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost btn-full" onclick="toggleModal('catModal',false)">Cancel</button>
-      <button class="btn btn-primary btn-full" onclick="saveCustomCategory()">Save Category</button>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="glass-panel">
+      <div class="chart-title">Expense By User Comparison</div>
+      <div class="chart-container"><canvas id="userExpenseChart"></canvas></div>
+    </div>
+    <div class="glass-panel" style="grid-column: span 2;">
+      <div class="chart-title">Expense Category Breakdown</div>
+      <div class="chart-container"><canvas id="barChart"></canvas></div>
     </div>
   </div>
 </div>
 
-<div id="txModal" class="modal-overlay">
-  <div class="modal-box card" style="max-width:520px;">
-    <div class="modal-header">
-      <div class="modal-title" id="txModalTitle"><i class="fa-solid fa-plus"></i> Add Transaction</div>
-      <button class="modal-close" onclick="closeTxModal()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex;flex-direction:column;gap:18px;">
-        <div class="toggle-pill" id="typeToggle">
-          <button class="toggle-pill-btn active-income" id="btnIncome" onclick="setTxType('income')"><i class="fa-solid fa-arrow-trend-up"></i> Income</button>
-          <button class="toggle-pill-btn" id="btnExpense" onclick="setTxType('expense')"><i class="fa-solid fa-arrow-trend-down"></i> Expense</button>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Amount</label>
-          <div class="amount-input-wrap">
-            <span class="amount-currency">₹</span>
-            <input class="amount-input" type="number" id="txAmount" placeholder="0" min="0" step="0.01">
-          </div>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Category</label>
-          <div class="cat-grid" id="catGrid"></div>
-          <div class="others-section" id="othersSection"><input class="input" type="text" id="txCatCustom" placeholder="Type custom category…" style="margin-top:8px;"></div>
-        </div>
-        <div class="input-group"><label class="input-label">Note / Reason</label><input class="input" type="text" id="txReason" placeholder="What was this for?"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div class="input-group"><label class="input-label">Date</label><input class="input" type="date" id="txDate"></div>
-          <div class="input-group"><label class="input-label">Time</label><input class="input" type="time" id="txTime"></div>
-        </div>
-        <div class="input-group"><label class="input-label">User</label><select class="input" id="txUser"></select></div>
-        <div>
-          <button type="button" onclick="toggleUpiSection()" class="btn btn-ghost" style="width:100%;justify-content:space-between;font-size:13px;" id="upiToggleBtn">
-            <span><i class="fa-solid fa-qrcode" style="color:var(--purple);margin-right:8px;"></i> UPI Details <span style="font-size:11px;color:var(--text-muted);">(Optional)</span></span>
-            <i class="fa-solid fa-chevron-down" id="upiChevron" style="font-size:11px;transition:transform 0.2s;"></i>
-          </button>
-          <div id="upiSection" style="display:none;margin-top:10px;flex-direction:column;gap:10px;padding:0;">
-            <div class="input-group"><label class="input-label">UPI ID</label><input class="input" type="text" id="txUpiId" placeholder="user@upi"></div>
-            <div class="input-group">
-              <label class="input-label">Payment App</label>
-              <select class="input" id="txPayApp">
-                <option value="">None</option>
-                <option value="gpay">Google Pay</option><option value="phonepe">PhonePe</option>
-                <option value="paytm">Paytm</option><option value="bhim">BHIM</option><option value="generic">Other UPI</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost btn-full" onclick="closeTxModal()">Cancel</button>
-      <button class="btn btn-primary btn-full" onclick="saveTx()" id="saveTxBtn"><i class="fa-solid fa-check"></i> Save</button>
-    </div>
-  </div>
-</div>
+<nav class="bottom-nav">
+  <a href="index.html" class="nav-item"><i class="fa-solid fa-house nav-icon"></i><span class="nav-label">Home</span></a>
+  <a href="index.html" class="nav-item"><i class="fa-solid fa-clock-rotate-left nav-icon"></i><span class="nav-label">History</span></a>
+  <a href="index.html" class="nav-fab"><i class="fa-solid fa-plus"></i></a>
+  <a href="index.html" class="nav-item"><i class="fa-solid fa-users nav-icon"></i><span class="nav-label">Users</span></a>
+  <div class="nav-item active"><i class="fa-solid fa-chart-line nav-icon"></i><span class="nav-label">Graph</span></div>
+</nav>
 
-<div id="userModal" class="modal-overlay">
-  <div class="modal-box card" style="max-width:380px;">
-    <div class="modal-header">
-      <div class="modal-title" id="userModalTitle"><i class="fa-solid fa-user-plus"></i> Add User</div>
-      <button class="modal-close" onclick="toggleModal('userModal',false)"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <input type="hidden" id="editUserId">
-        <div class="input-group"><label class="input-label">Full Name</label><input class="input" type="text" id="userNameInput" placeholder="Enter name…"></div>
-        <div class="input-group">
-          <label class="input-label">Initial Savings (₹)</label>
-          <div class="amount-input-wrap"><span class="amount-currency" style="font-size:16px;">₹</span><input class="input" style="border:none;background:none;padding-left:0;" type="number" id="userSavingsInput" placeholder="0" min="0"></div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost btn-full" onclick="toggleModal('userModal',false)">Cancel</button>
-      <button class="btn btn-primary btn-full" onclick="saveUser()"><i class="fa-solid fa-check"></i> Save</button>
-    </div>
-  </div>
-</div>
+<script>
+  let rawData = { transactions: [], users: [] };
+  let charts = {};
 
-<div id="guideModal" class="modal-overlay">
-  <div class="modal-box card" style="max-width:560px;">
-    <div class="modal-header">
-      <div class="modal-title"><i class="fa-brands fa-google" style="color:#4ade80;"></i> Google Sheets Setup</div>
-      <button class="modal-close" onclick="toggleModal('guideModal',false)"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex;flex-direction:column;gap:20px;">
-        <div class="card" style="background:rgba(255,255,255,0.02);"><div style="display:flex;gap:12px;align-items:flex-start;"><div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">1</div><div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px;">Create a Spreadsheet</div><div style="font-size:12px;color:var(--text-dim);line-height:1.6;">Open <a href="https://sheets.google.com" target="_blank" style="color:var(--blue);">Google Sheets</a> and create a blank spreadsheet.</div></div></div></div>
-        <div class="card" style="background:rgba(255,255,255,0.02);"><div style="display:flex;gap:12px;align-items:flex-start;"><div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">2</div><div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px;">Open Apps Script</div><div style="font-size:12px;color:var(--text-dim);">Click <b style="color:var(--text);">Extensions → Apps Script</b>. Delete existing code and paste the script below.</div></div></div></div>
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:0.05em;text-transform:uppercase;">Apps Script Code</span><button onclick="copyScriptCode()" class="btn btn-ghost" style="padding:6px 12px;font-size:12px;"><i class="fa-regular fa-copy"></i> Copy</button></div>
-          <div style="background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;overflow-x:auto;max-height:200px;overflow-y:auto;">
-            <pre id="scriptCodeBlock" style="font-family:monospace;font-size:11px;color:#4ade80;line-height:1.7;white-space:pre-wrap;">// See previous backend code - remains completely unchanged</pre>
-          </div>
-        </div>
-        <div class="card" style="background:rgba(255,255,255,0.02);"><div style="display:flex;gap:12px;align-items:flex-start;"><div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">3</div><div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:6px;">Deploy as Web App</div><ul style="font-size:12px;color:var(--text-dim);line-height:1.8;padding-left:14px;"><li>Click <b style="color:var(--text);">Deploy → New deployment</b></li><li>Select type: <b style="color:var(--text);">Web app</b></li><li>Execute as: <b style="color:var(--text);">Me</b></li><li>Who has access: <b style="color:var(--text);">Anyone</b></li><li>Copy the <b style="color:var(--green);">Web App URL</b> and paste in Settings</li></ul></div></div></div>
-      </div>
-    </div>
-  </div>
-</div>
+  // Theme Syncing from index.html settings
+  function applySavedTheme() {
+    try {
+      const localDB = JSON.parse(localStorage.getItem('moneyProDB_v3') || '{}');
+      if (localDB.settings) {
+        if (localDB.settings.customBg) document.getElementById('app-background').style.backgroundImage = `url(${localDB.settings.customBg})`;
+        if (localDB.settings.bgOpacity !== undefined) document.getElementById('app-background').style.opacity = localDB.settings.bgOpacity;
+        if (localDB.settings.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+      }
+      
+      // Hide desktop back button if on mobile (since bottom nav is there)
+      if (window.innerWidth < 768) {
+        const desktopBtn = document.querySelector('.desktop-only');
+        if (desktopBtn) desktopBtn.style.display = 'none';
+      }
+    } catch(e) { console.error("Theme load error", e); }
+  }
 
-<div id="view-setup">
-  <div class="setup-card card">
-    <div style="text-align:center;margin-bottom:28px;">
-      <div style="width:60px;height:60px;margin:0 auto 14px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:17px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 8px 28px rgba(96,165,250,0.35);">
-        <img src="https://i.ibb.co/gL2mGNzg/Gemini-Generated-Image-jdeu6vjdeu6vjdeu.png" alt="Logo" style="width:100%; height:100%; border-radius:17px; object-fit:cover;">
-      </div>
-      <h1 style="font-family:var(--font-display);font-size:24px;font-weight:800;letter-spacing:-0.02em;margin-bottom:6px;">Money Notebook Pro</h1>
-      <p style="font-size:13px;color:var(--text-dim);">Connect Google Sheets for cloud backup, or use locally.</p>
-    </div>
-    <form id="setupForm" onsubmit="submitSetup(event)" style="display:flex;flex-direction:column;gap:18px;">
-      <div class="card" style="background:rgba(255,255,255,0.02);"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-user" style="color:var(--gold);"></i> Profile Setup</div><div style="display:flex;flex-direction:column;gap:10px;"><input class="input" id="setupUserName" type="text" placeholder="Enter your name (e.g. John)"></div></div>
-      <div class="card" style="background:rgba(255,255,255,0.02);"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-cloud" style="color:var(--blue);"></i> Cloud Sync</div><div style="display:flex;flex-direction:column;gap:10px;"><input class="input" id="setupUrl" type="url" placeholder="Paste Apps Script Web App URL…"><button type="button" onclick="toggleModal('guideModal',true)" class="btn btn-ghost" style="justify-content:center;font-size:13px;"><i class="fa-brands fa-google" style="color:#4ade80;"></i> View Setup Guide</button></div></div>
-      <button type="submit" class="btn btn-primary btn-full btn-lg"><i class="fa-solid fa-rocket"></i> Connect & Launch</button>
-      <div style="position:relative;text-align:center;margin:2px 0;"><div style="position:absolute;inset:50% 0 auto;height:1px;background:rgba(255,255,255,0.1);"></div><span style="position:relative;background:var(--bg);padding:0 12px;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">or</span></div>
-      <button type="button" onclick="closeSetup()" class="btn btn-ghost btn-full" style="font-size:13px;">Continue in Local Mode</button>
-    </form>
-  </div>
-</div>
+  // Fetch Data
+  async function fetchCloudData() {
+    applySavedTheme();
+    const params = new URLSearchParams(window.location.search);
+    const sheetUrl = params.get('url');
 
-<div id="main-app" style="display:none;">
+    if (!sheetUrl) {
+      alert("No Google Sheet URL provided. Redirecting to Home.");
+      window.location.href = 'index.html';
+      return;
+    }
 
-  <div class="sidebar desktop-only">
-    <div class="sidebar-logo">
-      <div class="sidebar-logo-icon">
-        <img src="https://i.ibb.co/gL2mGNzg/Gemini-Generated-Image-jdeu6vjdeu6vjdeu.png" alt="Logo" style="width:38px; height:38px; border-radius:11px; object-fit:cover;">
-      </div>
-      <div><div class="sidebar-title">Money Pro</div><div class="sidebar-sub">Finance Tracker</div></div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="sidebar-nav-item active" onclick="switchView('dashboard')" data-view="dashboard"><i class="fa-solid fa-house"></i> Home</div>
-      <div class="sidebar-nav-item" onclick="switchView('history')" data-view="history"><i class="fa-solid fa-clock-rotate-left"></i> History</div>
-      <div class="sidebar-nav-item" onclick="switchView('users')" data-view="users"><i class="fa-solid fa-users"></i> Users</div>
-      <div class="sidebar-nav-item" onclick="openGraphPage()" data-view="graph"><i class="fa-solid fa-chart-line"></i> Graphs</div>
-      <div class="sidebar-nav-item" onclick="switchView('settings')" data-view="settings"><i class="fa-solid fa-gear"></i> Settings</div>
-    </nav>
-    <button class="sidebar-add-btn" onclick="openTxModal()"><i class="fa-solid fa-plus"></i> Add Transaction</button>
-    <div class="sidebar-footer"><button class="btn btn-ghost btn-full" onclick="triggerSync()" style="font-size:13px;"><i class="fa-solid fa-cloud-arrow-up"></i> Sync Now</button></div>
-  </div>
-
-  <div class="main-area">
-    <header class="app-header mobile-only">
-      <div class="header-logo">
-        <div class="header-logo-icon">
-          <img src="https://i.ibb.co/gL2mGNzg/Gemini-Generated-Image-jdeu6vjdeu6vjdeu.png" alt="Logo" style="width:34px; height:34px; border-radius:10px; object-fit:cover;">
-        </div>
-        <span class="header-title">Money Pro</span>
-      </div>
-      <div class="header-actions">
-        <div id="topStatusIndicator" class="sync-status-badge online" onclick="triggerSync()"><i class="fa-solid fa-circle-check"></i> <span>Online</span></div>
-        <div class="header-btn" onclick="switchView('settings')"><i class="fa-solid fa-gear"></i></div>
-      </div>
-    </header>
-
-    <div class="desktop-topbar desktop-only">
-      <div class="desktop-topbar-title" id="desktopPageTitle">Home</div>
-      <div class="desktop-topbar-actions">
-        <div id="desktopStatusIndicator" class="sync-status-badge online" onclick="triggerSync()" style="margin-right:10px;"><i class="fa-solid fa-circle-check"></i> <span>Online</span></div>
-        <button class="btn btn-ghost" onclick="triggerSync()" style="font-size:13px;"><i class="fa-solid fa-cloud-arrow-up"></i> Sync</button>
-      </div>
-    </div>
-
-    <div id="view-dashboard" class="view-section active">
-      <div class="page-content">
+    try {
+      const response = await fetch(sheetUrl, {
+        method: 'POST',
+        body: JSON.stringify({ syncQueue: [] }),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+      });
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        rawData.transactions = data.transactions || [];
+        rawData.users = data.users || [];
         
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; margin-top: -10px;">
-          <div style="font-size:12px; color:var(--text-dim); display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.05); padding: 6px 12px; border-radius:10px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px);">
-            <i class="fa-solid fa-layer-group" style="color:var(--blue);"></i>
-            <span>Workspace: <b style="color:var(--text);" id="dashboardActiveSheetName">Personal Finance</b></span>
-          </div>
-        </div>
-
-        <div class="balance-card card">
-          <div class="balance-card-bg"><div class="balance-card-orb"></div><div class="balance-card-orb"></div></div>
-          <div style="position:relative;z-index:1;">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;">
-              <div>
-                <div class="balance-label">Total Savings</div>
-                <div class="balance-amount"><span class="currency">₹</span><span id="dashBalance">0</span></div>
-              </div>
-              <select class="input" id="dashUserSelect" onchange="onDashUserChange()" style="background:rgba(255,255,255,0.07);border:none;width:auto;padding:8px 12px;font-size:12px;margin-top:4px;"></select>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" id="savingsProgress" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--purple));"></div></div>
-            <div class="balance-meta">
-              <span class="chip chip-green"><i class="fa-solid fa-arrow-up"></i> ₹<span id="dashIncome">0</span></span>
-              <span class="chip chip-red"><i class="fa-solid fa-arrow-down"></i> ₹<span id="dashExpense">0</span></span>
-            </div>
-            <div class="upi-launch-row" id="upiLaunchRow" style="display:none;"></div>
-          </div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-card card income">
-            <div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-            <div class="stat-label">Income</div><div class="stat-value">₹<span id="statIncome">0</span></div>
-          </div>
-          <div class="stat-card card expense">
-            <div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
-            <div class="stat-label">Expenses</div><div class="stat-value">₹<span id="statExpense">0</span></div>
-          </div>
-          <div class="stat-card card" style="border-color:rgba(96,165,250,0.2) !important;">
-            <div class="stat-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-receipt"></i></div>
-            <div class="stat-label">Transactions</div><div class="stat-value" style="color:var(--blue);"><span id="statTxCount">0</span></div>
-          </div>
-          <div class="stat-card card analytics-card-interactive" onclick="openAnalyticsModal()">
-            <div class="stat-icon" style="background:var(--gold-dim);color:var(--gold);"><i class="fa-solid fa-chart-pie"></i></div>
-            <div class="stat-label" id="dashboardAnalyticsLabel" style="color:var(--gold);">This Month <i class="fa-solid fa-chevron-down" style="font-size:9px; margin-left:3px;"></i></div>
-            <div class="stat-value" style="color:var(--gold);">₹<span id="statDynamicPeriod">0</span></div>
-          </div>
-        </div>
-
-        <div class="section-header"><span class="section-title">Recent Transactions</span><span class="section-action" onclick="switchView('history')">View all →</span></div>
-        <div class="tx-list" id="recentTxList"></div>
-      </div>
-    </div>
-
-    <div id="view-history" class="view-section">
-      <div class="page-content">
-        <div class="input-icon-wrap" style="margin-bottom:12px;"><i class="input-icon fa-solid fa-magnifying-glass"></i><input class="input" type="text" id="histSearch" placeholder="Search by name, category, note, amount…" oninput="renderHistory()"></div>
-        <div class="filter-bar" id="historyFilters">
-          <button class="filter-btn active" onclick="setHistFilter('all',this)">All</button>
-          <button class="filter-btn" onclick="setHistFilter('income',this)">Income</button>
-          <button class="filter-btn" onclick="setHistFilter('expense',this)">Expense</button>
-          <button class="filter-btn" onclick="setHistFilter('today',this)">Today</button>
-          <button class="filter-btn" onclick="setHistFilter('week',this)">This Week</button>
-          <button class="filter-btn" onclick="setHistFilter('month',this)">This Month</button>
-        </div>
-        <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center;">
-          <select class="input" id="histUserFilter" onchange="renderHistory()" style="flex:1;"><option value="all">All Users</option></select>
-          <span id="histCount" style="font-size:12px;color:var(--text-dim);white-space:nowrap;"></span>
-        </div>
-        <div class="tx-list" id="historyList"></div>
-        <div id="histEmptyState" class="empty-state" style="display:none;"><div class="empty-icon">🔍</div><div class="empty-title">No transactions found</div><div class="empty-sub">Try a different filter or search term</div></div>
-        <div id="histLoadMore" style="text-align:center;margin-top:14px;display:none;"><button class="btn btn-ghost" onclick="loadMoreHistory()" style="font-size:13px;">Load More</button></div>
-      </div>
-    </div>
-
-    <div id="view-users" class="view-section">
-      <div class="page-content">
-        <div class="section-header" style="margin-top:0;">
-          <span class="section-title">User Profiles</span><button class="btn btn-primary" onclick="openAddUser()" style="padding: 6px 12px; font-size: 12px;"><i class="fa-solid fa-plus"></i> Add User</button>
-        </div>
-        <div id="usersList" style="display:flex;flex-direction:column;gap:10px;"></div>
-        <div id="usersEmptyState" class="empty-state" style="display:none;"><div class="empty-icon">👤</div><div class="empty-title">No users yet</div><div class="empty-sub">Add a user to get started</div></div>
-
-        <div class="section-header" style="margin-top: 32px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px;">
-          <span class="section-title">Custom Categories</span><button class="btn btn-ghost" onclick="openAddCategoryModal()" style="padding: 6px 12px; font-size: 12px; border-color:var(--blue); color:var(--blue);"><i class="fa-solid fa-plus"></i> Add Category</button>
-        </div>
-        <div id="customCatList" style="display:flex;flex-direction:column;gap:10px;"></div>
-      </div>
-    </div>
-
-    <div id="view-settings" class="view-section">
-      <div class="page-content">
-
-        <div class="card" style="margin-bottom:14px;">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-paint-roller" style="color:var(--blue);"></i> Personalisation</div>
-          
-          <div class="settings-row">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-moon"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">App Theme</div>
-                <div class="settings-row-sub">Dark / Light Mode</div>
-              </div>
-            </div>
-            <div class="toggle-pill" style="width: auto;">
-              <button class="toggle-pill-btn" id="btnThemeDark" onclick="setTheme('dark')">Dark</button>
-              <button class="toggle-pill-btn" id="btnThemeLight" onclick="setTheme('light')">Light</button>
-            </div>
-          </div>
-
-          <div class="settings-row">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--purple-dim);color:var(--purple);"><i class="fa-solid fa-font"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">Text Style Layouts</div>
-                <div class="settings-row-sub">Customize app fonts</div>
-              </div>
-            </div>
-            <select class="input" id="settingsFontSelect" onchange="setFontStyle(this.value)" style="width:auto;padding:7px 10px;font-size:12px;">
-              <option value="default">Default (Syne & DM Sans)</option>
-              <option value="inter">Inter (Clean)</option>
-              <option value="poppins">Poppins (Rounded)</option>
-              <option value="roboto">Roboto (Standard)</option>
-            </select>
-          </div>
-
-          <div class="settings-row">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--green-dim);color:var(--green);"><i class="fa-solid fa-image"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">Custom Background</div>
-                <div class="settings-row-sub">Select from Gallery</div>
-              </div>
-            </div>
-            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="document.getElementById('bgImageInput').click()">Change</button>
-            <input type="file" id="bgImageInput" accept="image/*" style="display:none;" onchange="handleBgImageUpload(event)">
-          </div>
-
-          <div class="settings-row" style="border:none;">
-            <div style="display:flex;align-items:center;width:100%;">
-              <div class="settings-icon" style="background:var(--gold-dim);color:var(--gold);"><i class="fa-solid fa-eye-slash"></i></div>
-              <div class="settings-row-label" style="flex:1;">
-                <div class="settings-row-title">Background Visibility</div>
-                <div class="settings-row-sub">Adjust image transparency</div>
-                <input type="range" id="bgOpacitySlider" min="0" max="1" step="0.05" value="1" oninput="updateBgOpacity(this.value)" style="width:100%;margin-top:8px;">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-header" style="margin-top:0;">
-          <span class="section-title"><i class="fa-solid fa-layer-group" style="color:var(--blue); margin-right:6px;"></i> Workspaces (Sheets)</span><button class="btn btn-ghost" onclick="toggleModal('sheetModal', true)" style="padding: 6px 12px; font-size: 12px;"><i class="fa-solid fa-plus"></i> Add</button>
-        </div>
-        <div id="sheetManagerList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:24px;"></div>
-
-        <div class="card" style="margin-bottom:14px;">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-cloud" style="color:var(--blue);"></i> Cloud Sync (Active Sheet)</div>
-          <div class="settings-row"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-link"></i></div><div class="settings-row-label"><div class="settings-row-title">Apps Script URL</div><div class="settings-row-sub" id="urlStatus">Not configured</div></div></div><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="editActiveSheetUrl()">Edit</button></div>
-          <div class="settings-row"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-clock"></i></div><div class="settings-row-label"><div class="settings-row-title">Auto Refresh</div><div class="settings-row-sub">Background sync frequency</div></div></div><select class="input" id="settingsRefreshSelect" onchange="updateRefreshInterval(this.value)" style="width:auto;padding:7px 10px;font-size:12px;"><option value="0">Off</option><option value="15">15 Seconds</option><option value="30">30 Seconds</option><option value="60">60 Seconds</option></select></div>
-          <div class="settings-row"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--green-dim);color:var(--green);"><i class="fa-solid fa-cloud-arrow-up"></i></div><div class="settings-row-label"><div class="settings-row-title">Sync to Cloud</div><div class="settings-row-sub" id="lastSyncLabel">Never synced</div></div></div><button class="btn btn-success" style="padding:7px 12px;font-size:12px;" onclick="triggerSync()">Sync Now</button></div>
-          <div class="settings-row" style="border:none;"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-brands fa-google"></i></div><div class="settings-row-label"><div class="settings-row-title">Setup Guide</div><div class="settings-row-sub">Google Apps Script instructions</div></div></div><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="toggleModal('guideModal',true)">View</button></div>
-        </div>
-        <div class="card" style="margin-bottom:14px;">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-qrcode" style="color:var(--purple);"></i> UPI Settings</div>
-          <div class="settings-row"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--purple-dim);color:var(--purple);"><i class="fa-solid fa-at"></i></div><div class="settings-row-label"><div class="settings-row-title">UPI ID</div><div class="settings-row-sub" id="settingsUpiLabel">Not set</div></div></div><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="editUpi()">Edit</button></div>
-          <div class="settings-row" style="border:none;"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--purple-dim);color:var(--purple);"><i class="fa-solid fa-mobile-screen"></i></div><div class="settings-row-label"><div class="settings-row-title">Default Payment App</div><div class="settings-row-sub" id="settingsAppLabel">None</div></div></div><select class="input" id="settingsAppSelect" onchange="updateDefaultApp(this.value)" style="width:auto;padding:7px 10px;font-size:12px;"><option value="">None</option><option value="gpay">Google Pay</option><option value="phonepe">PhonePe</option><option value="paytm">Paytm</option><option value="bhim">BHIM</option><option value="generic">Other UPI</option></select></div>
-        </div>
-        <div class="card" style="border-color:rgba(251,113,133,0.3) !important;">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</div>
-          <div class="settings-row"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--red-dim);color:var(--red);"><i class="fa-solid fa-trash-can"></i></div><div class="settings-row-label"><div class="settings-row-title">Clear Workspace</div><div class="settings-row-sub">Wipe active sheet local data</div></div></div><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--red);border-color:rgba(251,113,133,0.3);" onclick="clearAllData()">Clear</button></div>
-          <div class="settings-row" style="border:none;"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--red-dim);color:var(--red);"><i class="fa-solid fa-rotate-left"></i></div><div class="settings-row-label"><div class="settings-row-title">Reset Entire App</div><div class="settings-row-sub">Full reset including settings</div></div></div><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--red);border-color:rgba(251,113,133,0.3);" onclick="resetApp()">Reset</button></div>
-        </div>
-        <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--text-muted);">Money Notebook Pro v8.5 Glass</div>
-      </div>
-    </div>
-
-  </div><nav class="bottom-nav mobile-only">
-    <div class="nav-item active" onclick="switchView('dashboard')" data-view="dashboard"><i class="fa-solid fa-house nav-icon"></i><span class="nav-label">Home</span></div>
-    <div class="nav-item" onclick="switchView('history')" data-view="history"><i class="fa-solid fa-clock-rotate-left nav-icon"></i><span class="nav-label">History</span></div>
-    <button class="nav-fab" onclick="openTxModal()" aria-label="Add transaction"><i class="fa-solid fa-plus"></i></button>
-    <div class="nav-item" onclick="switchView('users')" data-view="users"><i class="fa-solid fa-users nav-icon"></i><span class="nav-label">Users</span></div>
-    <div class="graph-nav-btn" onclick="openGraphPage()"><i class="fa-solid fa-chart-line nav-icon" style="color:var(--text-muted);font-size:17px;"></i><span class="nav-label" style="color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Graph</span></div>
-  </nav>
-
-</div><script>
-/* ─── Data & State (EVENT SOURCED ARCHITECTURE) ─── */
-let DB = {
-  users: [], transactions: [], deletedIds: [], deletedUsers: [], deletedCats: [],
-  settings: { scriptUrl:'', upiId:'', paymentApp:'', lastSync:null, activeUserId:null, setupDone:false, activeSheetId: 'default', sheets: [], refreshInterval: '15', customBg: '', bgOpacity: 1, theme: 'dark', fontStyle: 'default' },
-  workspaces: {}, customCats: { income: [], expense: [] }, syncQueue: []
-};
-
-const INCOME_CATS = [ {emoji:'💼',label:'Salary',key:'salary'}, {emoji:'💹',label:'Investment',key:'investment'}, {emoji:'🎁',label:'Gift',key:'gift'}, {emoji:'💻',label:'Freelance',key:'freelance'}, {emoji:'🏠',label:'Rent Recv',key:'rent_recv'}, {emoji:'📦',label:'Business',key:'business'}, {emoji:'🏦',label:'Transfer',key:'transfer'} ];
-const EXPENSE_CATS = [ {emoji:'🍔',label:'Food',key:'food'}, {emoji:'🚗',label:'Transport',key:'transport'}, {emoji:'🛒',label:'Shopping',key:'shopping'}, {emoji:'💊',label:'Health',key:'health'}, {emoji:'🎬',label:'Entertain',key:'entertainment'}, {emoji:'🏠',label:'Rent',key:'rent'}, {emoji:'📱',label:'Bills',key:'bills'}, {emoji:'📚',label:'Education',key:'education'}, {emoji:'✈️',label:'Travel',key:'travel'}, {emoji:'💸',label:'Transfer',key:'transfer_out'}, {emoji:'🐾',label:'Pets',key:'pets'} ];
-const UPI_APP_NAMES = {gpay:'Google Pay',phonepe:'PhonePe',paytm:'Paytm',bhim:'BHIM',generic:'Other UPI'};
-const UPI_APP_COLORS = {gpay:'upi-btn-gpay',phonepe:'upi-btn-phonepe',paytm:'upi-btn-paytm',bhim:'upi-btn-bhim',generic:'upi-btn-generic'};
-
-let currentTxType = 'expense', selectedCat = '', editingTxId = null, upiExpanded = false, othersOpen = false;
-let histFilter = 'all', histPage = 0, confirmCallback = null, isSyncing = false, activeAnalyticsPeriod = 'month', newCatType = 'income', autoRefreshTimer = null;
-const HIST_PAGE_SIZE = 25;
-
-/* ─── Storage Management ─── */
-function saveDB() {
-  try {
-    if (DB.settings.activeSheetId) {
-      if (!DB.workspaces) DB.workspaces = {};
-      DB.workspaces[DB.settings.activeSheetId] = { transactions: [...DB.transactions], users: [...DB.users], syncQueue: [...DB.syncQueue], customCats: JSON.parse(JSON.stringify(DB.customCats)) };
-    }
-    localStorage.setItem('moneyProDB_v3', JSON.stringify(DB));
-    updateStatusIndicators();
-  } catch(e) { showToast('Storage full! Avoid large background images.','error'); }
-}
-
-function loadDB() {
-  try {
-    const raw = localStorage.getItem('moneyProDB_v3') || localStorage.getItem('moneyProDB_v2') || localStorage.getItem('moneyProDB');
-    if (raw) { 
-      const p = JSON.parse(raw); DB = {...DB,...p}; DB.settings = {...DB.settings,...(p.settings||{})}; 
-      if (!DB.settings.refreshInterval) DB.settings.refreshInterval = '15';
-      if (!DB.syncQueue) DB.syncQueue = [];
-      if (!DB.deletedUsers) DB.deletedUsers = []; if (!DB.deletedCats) DB.deletedCats = [];
-
-      // Clean up legacy dates
-      if (DB.transactions) DB.transactions.forEach(t => { if (t.date && t.date.includes('T')) t.date = t.date.split('T')[0]; });
-
-      // Clean up Custom Cat ID to readable names
-      if (DB.customCats) {
-        ['income', 'expense'].forEach(type => {
-          (DB.customCats[type]||[]).forEach(c => { if (!c.key || c.key.startsWith('id_') || c.key.startsWith('custom_')) c.key = c.label; });
-        });
+        populateUserFilter();
+        populateCategoryFilter();
+        applyFilters();
+        
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+      } else {
+        throw new Error(data.message || 'Failed to fetch');
       }
-      if (DB.transactions) {
-        DB.transactions.forEach(t => {
-          if (t.category && (t.category.startsWith('id_') || t.category.startsWith('custom_'))) {
-            const allCustom = [...(DB.customCats.income||[]), ...(DB.customCats.expense||[])];
-            const found = allCustom.find(c => c.id === t.category || c.key === t.category);
-            if (found) t.category = found.label; // Apply readable label
-          }
-        });
-      }
-
-      if (!DB.workspaces) DB.workspaces = {};
-      if (!DB.customCats) DB.customCats = { income: [], expense: [] };
-      if (!DB.settings.sheets || DB.settings.sheets.length === 0) {
-        DB.settings.sheets = [{ id: 'default', name: 'Personal Finance', url: DB.settings.scriptUrl || '' }];
-        DB.settings.activeSheetId = 'default';
-        DB.workspaces['default'] = { transactions: DB.transactions, users: DB.users, syncQueue: DB.syncQueue, customCats: DB.customCats };
-      }
+    } catch (err) {
+      alert("Error fetching data: " + err.message);
+      document.getElementById('loader').innerHTML = '<h2>Failed to load data.</h2><button class="btn" onclick="window.location.href=\'index.html\'">Go Back</button>';
     }
-  } catch(e) {}
-}
-
-function uid() { return 'id_' + Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
-function queueSyncEvent(action, payload) { DB.syncQueue.push({ action, payload, timestamp: Date.now() }); saveDB(); }
-
-/* ─── Core Utilities ─── */
-function formatCurrency(n) { return Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}); }
-function formatDate(d) { if(!d) return ''; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); } catch{return d;} }
-
-// Fixed: Precise Local Time Date Calculation (Prevents UTC offset bugs)
-function todayStr() { 
-  const d = new Date();
-  const offset = d.getTimezoneOffset() * 60000;
-  return new Date(d.getTime() - offset).toISOString().split('T')[0];
-}
-function nowTime() { return new Date().toTimeString().substr(0,5); }
-function getMonthRange() {
-  const n=new Date(), y=n.getFullYear(), m=n.getMonth();
-  const start = new Date(y, m, 1);
-  const end = new Date(y, m+1, 0);
-  const offsetStart = start.getTimezoneOffset() * 60000;
-  const offsetEnd = end.getTimezoneOffset() * 60000;
-  return { 
-      start: new Date(start.getTime() - offsetStart).toISOString().split('T')[0], 
-      end: new Date(end.getTime() - offsetEnd).toISOString().split('T')[0] 
-  };
-}
-function getUserName(userId) { const u = DB.users.find(u=>u.id===userId); return u ? u.name : 'Unknown'; }
-
-/* ─── Category Utilities ─── */
-function getCombinedCats(type) {
-  const defs = type === 'income' ? INCOME_CATS : EXPENSE_CATS;
-  const custom = DB.customCats ? (DB.customCats[type] || []) : [];
-  return [...defs, ...custom, {emoji:'➕',label:'Others',key:'__others__'}];
-}
-function getCatEmoji(key) {
-  if (key === '__others__') return '➕';
-  const found = [...getCombinedCats('income'), ...getCombinedCats('expense')].find(c=>c.key===key || c.label===key);
-  return found ? found.emoji : '💳';
-}
-function getCatLabel(key, type) {
-  if (key === '__others__') return 'Others';
-  const found = getCombinedCats(type).find(c=>c.key===key || c.label===key);
-  return found ? found.label : key; // Defaults to returning key (which is the label for custom categories)
-}
-
-/* ─── Toast, Modals, Loader ─── */
-function showToast(msg, type='info') {
-  const c = document.getElementById('toastContainer'), t = document.createElement('div');
-  t.className = `toast card ${type}`;
-  t.innerHTML = `<div class="toast-icon"><i class="fa-solid ${type==='success'?'fa-circle-check':type==='error'?'fa-circle-xmark':'fa-circle-info'}"></i></div><span>${msg}</span>`;
-  c.appendChild(t); setTimeout(() => t.remove(), 3600);
-}
-function toggleModal(id, open) {
-  const el = document.getElementById(id);
-  if (open) { el.style.display='flex'; requestAnimationFrame(()=>el.classList.add('open')); }
-  else { el.classList.remove('open'); setTimeout(()=>{ el.style.display='none'; },300); }
-}
-function showConfirm(title,msg,icon,btnLabel,btnClass,cb) {
-  document.getElementById('confirmTitle').textContent = title; document.getElementById('confirmMsg').textContent = msg;
-  document.getElementById('confirmIcon').textContent = icon;
-  const btn = document.getElementById('confirmBtn'); btn.textContent = btnLabel; btn.className = `btn ${btnClass} btn-full`;
-  confirmCallback = cb; document.getElementById('confirmOverlay').classList.add('open');
-}
-function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); confirmCallback=null; }
-function confirmAction() { if(confirmCallback) confirmCallback(); closeConfirm(); }
-function setLoader(show, msg='Syncing…') { document.getElementById('loaderText').textContent = msg; document.getElementById('cloudLoader').classList.toggle('active', show); }
-
-/* ─── Setup & Init ─── */
-function init() {
-  loadDB();
-  
-  // Apply Personalisation Settings
-  if (DB.settings.customBg) document.getElementById('app-background').style.backgroundImage = `url(${DB.settings.customBg})`;
-  if (DB.settings.bgOpacity !== undefined) {
-    document.getElementById('app-background').style.opacity = DB.settings.bgOpacity;
-    const slider = document.getElementById('bgOpacitySlider');
-    if (slider) slider.value = DB.settings.bgOpacity;
   }
-  setTheme(DB.settings.theme || 'dark');
-  setFontStyle(DB.settings.fontStyle || 'default');
 
-  if (DB.settings.setupDone) { showMainApp(); } else { showSetup(); }
-
-  window.addEventListener('online', () => { updateStatusIndicators(); if (getActiveSheetUrl() && DB.settings.setupDone) triggerSync(true); });
-  window.addEventListener('offline', () => { updateStatusIndicators(); });
-
-  document.addEventListener('keydown', e => {
-    if (e.key==='Escape') {
-      ['txModal','userModal','guideModal','syncModal','analyticsModal','sheetModal','catModal'].forEach(id => {
-        const el=document.getElementById(id); if(el&&el.classList.contains('open')) toggleModal(id,false);
-      }); closeConfirm();
-    }
-    if ((e.ctrlKey||e.metaKey)&&e.key==='n') { e.preventDefault(); openTxModal(); }
-    if ((e.ctrlKey||e.metaKey)&&e.key==='s') { e.preventDefault(); triggerSync(); }
-  });
-
-  if (DB.settings.setupDone && navigator.onLine) triggerSync(true);
-  startAutoRefresh();
-}
-
-function showSetup() { document.getElementById('view-setup').classList.add('active'); document.getElementById('main-app').style.display='none'; }
-function showMainApp() { document.getElementById('view-setup').classList.remove('active'); document.getElementById('main-app').style.display='block'; rebuildUserStats(); renderAll(); updateSyncDot(); updateStatusIndicators(); }
-
-function submitSetup(e) {
-  e.preventDefault();
-  const url = document.getElementById('setupUrl').value.trim(), upi = document.getElementById('setupUpiId') ? document.getElementById('setupUpiId').value.trim() : '', app = document.getElementById('setupPaymentApp') ? document.getElementById('setupPaymentApp').value : '', userName = document.getElementById('setupUserName').value.trim() || 'Me';
-  DB.settings.upiId = upi; DB.settings.paymentApp = app; DB.settings.setupDone = true;
-  if (url) { DB.settings.sheets = [{id: uid(), name: 'Personal Finance', url: url}]; DB.settings.activeSheetId = DB.settings.sheets[0].id; }
-  if (!DB.users.length) { const newUser = {id:uid(),name:userName,initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0}; DB.users.push(newUser); queueSyncEvent('UPSERT_USER', newUser); }
-  DB.settings.activeUserId = DB.users[0].id;
-  if (url) DB.workspaces[DB.settings.activeSheetId] = { transactions: DB.transactions, users: DB.users, syncQueue: DB.syncQueue, customCats: DB.customCats };
-  saveDB(); showMainApp(); showToast('Welcome to Money Notebook Pro! 🎉','success'); startAutoRefresh();
-}
-
-function closeSetup() {
-  DB.settings.setupDone = true; const userName = document.getElementById('setupUserName').value.trim() || 'Me';
-  if (!DB.users.length) { const newUser = {id:uid(),name:userName,initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0}; DB.users.push(newUser); queueSyncEvent('UPSERT_USER', newUser); }
-  DB.settings.activeUserId = DB.users[0].id; saveDB(); showMainApp();
-}
-
-/* ─── Custom UI Actions (Theme, Font, Background) ─── */
-function handleBgImageUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      // Compress to avoid local storage quota errors
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const MAX_WIDTH = 1920; const MAX_HEIGHT = 1080;
-      let width = img.width; let height = img.height;
-      if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
-      else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
-      canvas.width = width; canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% quality
-      
-      document.getElementById('app-background').style.backgroundImage = `url(${dataUrl})`;
-      DB.settings.customBg = dataUrl;
-      saveDB();
-      showToast('Background updated', 'success');
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function updateBgOpacity(val) {
-  document.getElementById('app-background').style.opacity = val;
-  DB.settings.bgOpacity = val;
-  saveDB();
-}
-
-function setTheme(mode) {
-  DB.settings.theme = mode;
-  const btnDark = document.getElementById('btnThemeDark');
-  const btnLight = document.getElementById('btnThemeLight');
-  if (mode === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light');
-    if(btnLight) { btnLight.classList.add('active-theme'); btnDark.classList.remove('active-theme'); }
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-    if(btnDark) { btnDark.classList.add('active-theme'); btnLight.classList.remove('active-theme'); }
+  function getUserName(uid) {
+    const u = rawData.users.find(x => x.id === uid);
+    return u ? u.name : 'Unknown User';
   }
-  saveDB();
-}
 
-function setFontStyle(style) {
-  DB.settings.fontStyle = style;
-  const root = document.documentElement;
-  if (style === 'inter') {
-    root.style.setProperty('--font-display', "'Inter', sans-serif");
-    root.style.setProperty('--font-body', "'Inter', sans-serif");
-  } else if (style === 'poppins') {
-    root.style.setProperty('--font-display', "'Poppins', sans-serif");
-    root.style.setProperty('--font-body', "'Poppins', sans-serif");
-  } else if (style === 'roboto') {
-    root.style.setProperty('--font-display', "'Roboto', sans-serif");
-    root.style.setProperty('--font-body', "'Roboto', sans-serif");
-  } else {
-    root.style.setProperty('--font-display', "'Syne', sans-serif");
-    root.style.setProperty('--font-body', "'DM Sans', sans-serif");
+  function populateUserFilter() {
+    const filter = document.getElementById('userFilter');
+    rawData.users.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.id;
+      opt.textContent = u.name;
+      filter.appendChild(opt);
+    });
   }
-  saveDB();
-}
 
-/* ─── Auto Refresh & Status ─── */
-function startAutoRefresh() {
-  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-  const seconds = parseInt(DB.settings.refreshInterval || '15');
-  if (seconds > 0) {
-    autoRefreshTimer = setInterval(() => {
-      if (navigator.onLine && getActiveSheetUrl() && DB.settings.setupDone && !isSyncing) triggerSync(true); 
-    }, seconds * 1000);
-  }
-}
-function updateRefreshInterval(val) { DB.settings.refreshInterval = val; saveDB(); startAutoRefresh(); showToast('Refresh interval updated', 'success'); }
-function updateStatusIndicators() {
-  const els = [document.getElementById('topStatusIndicator'), document.getElementById('desktopStatusIndicator')];
-  const pending = DB.syncQueue.length;
-  els.forEach(el => {
-    if (!el) return;
-    if (isSyncing) { el.className = 'sync-status-badge syncing'; el.innerHTML = `<i class="fa-solid fa-arrows-rotate fa-spin"></i> <span>Syncing...</span>`; } 
-    else if (!navigator.onLine) { el.className = 'sync-status-badge offline'; el.innerHTML = `<i class="fa-solid fa-wifi" style="text-decoration:line-through;"></i> <span>Offline${pending>0 ? ` (${pending} pending)` : ''}</span>`; } 
-    else if (pending > 0) { el.className = 'sync-status-badge offline'; el.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> <span>${pending} Pending Sync</span>`; } 
-    else { el.className = 'sync-status-badge online'; el.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>Online & Synced</span>`; }
-  });
-}
-
-/* ─── Navigation ─── */
-const PAGE_TITLES = {dashboard:'Home',history:'History',users:'Users',settings:'Settings'};
-function switchView(view) {
-  document.querySelectorAll('.view-section').forEach(s=>s.classList.remove('active'));
-  document.getElementById(`view-${view}`).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
-  document.querySelectorAll('.sidebar-nav-item').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
-  const dtEl = document.getElementById('desktopPageTitle'); if (dtEl) dtEl.textContent = PAGE_TITLES[view] || view;
-  if (view==='dashboard') renderDashboard();
-  if (view==='history') { histPage=0; renderHistory(); }
-  if (view==='users') renderUsers();
-  if (view==='settings') renderSettings();
-}
-
-function openGraphPage() { 
-  const activeSheet = DB.settings.sheets.find(s => s.id === DB.settings.activeSheetId);
-  const sheetUrl = activeSheet ? activeSheet.url : '';
-  
-  if (!sheetUrl) {
-    showToast('No active Google Sheet URL configured. Please connect a sheet in Settings first.', 'warning');
-    return;
-  }
-  
-  // Open in the same tab instead of a new one
-  window.location.href = 'graph.html?url=' + encodeURIComponent(sheetUrl);
-}
-
-/* ─── User Stats & Dash ─── */
-function rebuildUserStats(uid_filter) {
-  const users = uid_filter ? DB.users.filter(u=>u.id===uid_filter) : DB.users;
-  users.forEach(u => {
-    const txs = DB.transactions.filter(t=>t.userId===u.id);
-    u.runningIncome = txs.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0);
-    u.runningExpense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
-    u.runningSavings = Number(u.initialSavings||0)+u.runningIncome-u.runningExpense;
-  });
-}
-
-function renderAll() { renderDashboard(); populateUserSelects(); renderSettings(); updateStatusIndicators(); }
-
-// Fixed: Precise Date Calculation
-function calculateAnalytics(period) {
-  const userTxs = DB.transactions.filter(t=>t.userId===DB.settings.activeUserId && t.type==='expense');
-  const now = new Date();
-  const todayStrLocal = now.toLocaleDateString('en-IN'); 
-  const currMonth = now.getMonth();
-  const currYear = now.getFullYear();
-
-  return userTxs.filter(t => {
-    if(!t.date) return false;
-    // Check against YYYY-MM-DD strict match for "Today" OR localized formatted match
-    let dObj = new Date(t.date);
-    if (isNaN(dObj)) return false; 
+  function populateCategoryFilter() {
+    const filter = document.getElementById('catFilter');
+    const categories = new Set();
     
-    if(period === 'today') {
-      return dObj.toLocaleDateString('en-IN') === todayStrLocal || t.date.split('T')[0] === todayStr();
-    }
-    if(period === 'month') {
-      return dObj.getMonth() === currMonth && dObj.getFullYear() === currYear;
-    }
-    if(period === 'year') {
-      return dObj.getFullYear() === currYear;
-    }
-    return false;
-  }).reduce((s,t)=>s+Number(t.amount),0);
-}
+    rawData.transactions.forEach(t => {
+      if (t.type === 'expense' && t.category) {
+        // Strip out 'id_' keys if any leaked, otherwise use readable label
+        let label = t.category;
+        if(label.startsWith('id_') || label.startsWith('custom_')) return; 
+        categories.add(label);
+      }
+    });
 
-function renderDashboard() {
-  const sel = document.getElementById('dashUserSelect');
-  const uid_sel = sel ? (sel.value || DB.settings.activeUserId || (DB.users[0]||{}).id) : (DB.settings.activeUserId || (DB.users[0]||{}).id);
-  populateDashUserSelect(uid_sel);
-  const user = DB.users.find(u=>u.id===uid_sel) || DB.users[0];
-  if (!user) return;
-
-  rebuildUserStats(user.id);
-  const savings = user.runningSavings||0, inc = user.runningIncome||0, exp = user.runningExpense||0, total = Number(user.initialSavings||0)+inc;
-  const pct = total > 0 ? Math.min(100,Math.max(0,(savings/total)*100)) : 0;
-
-  document.getElementById('dashBalance').textContent = formatCurrency(savings);
-  document.getElementById('dashIncome').textContent = formatCurrency(inc);
-  document.getElementById('dashExpense').textContent = formatCurrency(exp);
-  document.getElementById('statIncome').textContent = formatCurrency(inc);
-  document.getElementById('statExpense').textContent = formatCurrency(exp);
-  document.getElementById('statTxCount').textContent = DB.transactions.filter(t=>t.userId===user.id).length;
-  document.getElementById('savingsProgress').style.width = pct+'%';
-
-  const labels = {today:'Today', month:'This Month', year:'This Year'};
-  document.getElementById('dashboardAnalyticsLabel').innerHTML = `${labels[activeAnalyticsPeriod]} <i class="fa-solid fa-chevron-down" style="font-size:9px; margin-left:3px;"></i>`;
-  document.getElementById('statDynamicPeriod').textContent = formatCurrency(calculateAnalytics(activeAnalyticsPeriod));
-
-  const activeSheet = DB.settings.sheets.find(s=>s.id === DB.settings.activeSheetId);
-  document.getElementById('dashboardActiveSheetName').textContent = activeSheet ? activeSheet.name : 'Local Default';
-
-  renderUpiLaunchButtons(); renderRecentTx(user.id);
-}
-
-function populateDashUserSelect(activeId) {
-  const sel = document.getElementById('dashUserSelect'); const cur = activeId || sel.value || DB.settings.activeUserId;
-  sel.innerHTML = DB.users.map(u=>`<option value="${u.id}"${u.id===cur?'selected':''}>${u.name}</option>`).join('');
-}
-function onDashUserChange() { DB.settings.activeUserId = document.getElementById('dashUserSelect').value; saveDB(); renderDashboard(); }
-
-function renderRecentTx(userId) {
-  const txs = DB.transactions.filter(t=>t.userId===userId).sort((a,b)=>((b.date||'')+(b.time||'')).localeCompare((a.date||'')+(a.time||''))).slice(0,5);
-  const el = document.getElementById('recentTxList');
-  if (!txs.length) { el.innerHTML = `<div class="empty-state"><div class="empty-icon">💳</div><div class="empty-title">No transactions yet</div></div>`; return; }
-  el.innerHTML = txs.map((t,i)=>txHTML(t,i,'')).join('');
-}
-
-function txHTML(t, idx, searchTerm) {
-  const isInc = t.type==='income', emoji = getCatEmoji(t.category);
-  const upiTag = t.upiId ? `<span class="upi-badge"><i class="fa-solid fa-qrcode" style="font-size:9px;"></i> ${UPI_APP_NAMES[t.paymentPlatform]||'UPI'}</span>` : '';
-  const catLabel = getCatLabel(t.category, t.type), catDisplay = highlight(catLabel||'Transaction', searchTerm), reasonDisplay = highlight(t.reason||'—', searchTerm), userDisplay = highlight(getUserName(t.userId), searchTerm);
-  return `
-    <div class="tx-item card" style="animation-delay:${Math.min(idx,8)*0.05}s; margin-bottom:0;" onclick="openEditTx('${t.id}')">
-      <div class="tx-icon ${t.type}">${emoji}</div>
-      <div class="tx-details">
-        <div class="tx-category">${catDisplay}</div>
-        <div class="tx-sub">${reasonDisplay} ${upiTag}</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:1px;">${userDisplay}</div>
-      </div>
-      <div class="tx-meta">
-        <div class="tx-amount ${t.type}">${isInc?'+':'-'}₹${formatCurrency(t.amount)}</div>
-        <div class="tx-date">${formatDate(t.date)}</div>
-      </div>
-      <button onclick="event.stopPropagation();deleteTxConfirm('${t.id}')" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-dim);cursor:pointer;padding:8px;border-radius:8px;margin-left:4px;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.color='var(--red)';this.style.borderColor='rgba(251,113,133,0.3)';" onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='rgba(255,255,255,0.1)';"><i class="fa-solid fa-trash-can" style="font-size:12px;"></i></button>
-    </div>`;
-}
-
-function highlight(text, term) {
-  if (!term || !text) return text||'';
-  const t = String(text), idx = t.toLowerCase().indexOf(term.toLowerCase()); if (idx === -1) return t;
-  return t.slice(0,idx) + `<span class="search-highlight">${t.slice(idx,idx+term.length)}</span>` + t.slice(idx+term.length);
-}
-
-/* ─── UPI Launch ─── */
-function buildUpiUrl(app, upiId, amount, name, note) {
-  const encodedName = encodeURIComponent(name||'Payment'), encodedNote = encodeURIComponent(note||''), amt = amount ? Number(amount).toFixed(2) : '';
-  switch(app) {
-    case 'gpay': return `tez://upi/pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
-    case 'phonepe': return `phonepe://pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
-    case 'paytm': return `paytmmp://pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
-    case 'bhim': return `upi://pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
-    default: return `upi://pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
-  }
-}
-function launchUpiApp(app) {
-  const upiId = DB.settings.upiId; if (!upiId) { showToast('No UPI ID configured. Go to Settings.','warning'); return; }
-  window.location.href = buildUpiUrl(app, upiId, '', 'Payment', ''); setTimeout(() => { showToast('If app did not open, ensure it is installed.','info'); }, 2000);
-}
-function renderUpiLaunchButtons() {
-  const row = document.getElementById('upiLaunchRow'); if (!row) return;
-  const upiId = DB.settings.upiId, defaultApp = DB.settings.paymentApp; if (!upiId) { row.style.display='none'; return; }
-  const appsToShow = []; if (defaultApp && defaultApp !== '') appsToShow.push(defaultApp);
-  ['gpay','phonepe'].forEach(app => { if (!appsToShow.includes(app)) appsToShow.push(app); });
-  const visible = appsToShow.slice(0,2);
-  row.style.display = 'flex';
-  row.innerHTML = visible.map(app => {
-    const cls = UPI_APP_COLORS[app] || 'upi-btn-generic', name = UPI_APP_NAMES[app] || 'Pay';
-    const icon = app === 'gpay' ? '<i class="fa-brands fa-google" style="font-size:14px;"></i>' : app === 'phonepe' ? '<i class="fa-solid fa-mobile-screen" style="font-size:14px;"></i>' : '<i class="fa-solid fa-qrcode" style="font-size:14px;"></i>';
-    return `<button class="upi-launch-btn ${cls}" onclick="launchUpiApp('${app}')">${icon} Pay via ${name}</button>`;
-  }).join('');
-}
-
-/* ─── History ─── */
-function setHistFilter(f, btn) { histFilter = f; histPage = 0; document.querySelectorAll('#historyFilters .filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderHistory(); }
-function renderHistory() {
-  histPage = 0; const all = getFilteredTxs(), el = document.getElementById('historyList'), empty = document.getElementById('histEmptyState'), more = document.getElementById('histLoadMore'), countEl = document.getElementById('histCount');
-  if (countEl) countEl.textContent = all.length ? `${all.length} found` : '';
-  if (!all.length) { el.innerHTML=''; empty.style.display='flex'; more.style.display='none'; return; }
-  empty.style.display='none';
-  const search = (document.getElementById('histSearch')||{}).value?.trim()||'';
-  el.innerHTML = all.slice(0,HIST_PAGE_SIZE).map((t,i)=>txHTML(t,i,search)).join('');
-  more.style.display = all.length > HIST_PAGE_SIZE ? 'block' : 'none';
-  histPage = 1;
-}
-function loadMoreHistory() {
-  const all = getFilteredTxs(), search = (document.getElementById('histSearch')||{}).value?.trim()||'';
-  const start = histPage * HIST_PAGE_SIZE, slice = all.slice(start, start+HIST_PAGE_SIZE);
-  document.getElementById('historyList').innerHTML += slice.map((t,i)=>txHTML(t,start+i,search)).join('');
-  histPage++; if (start+HIST_PAGE_SIZE >= all.length) document.getElementById('histLoadMore').style.display='none';
-}
-function getFilteredTxs() {
-  const rawSearch = ((document.getElementById('histSearch')||{}).value||'').trim().toLowerCase(), userF = (document.getElementById('histUserFilter')||{}).value||'all';
-  const today = todayStr(), weekStr = new Date(Date.now()-7*86400000).toISOString().split('T')[0], {start:mStart,end:mEnd} = getMonthRange();
-  return DB.transactions.filter(t => {
-    const tDate = (t.date||'').split('T')[0];
-    if (histFilter==='income' && t.type!=='income') return false;
-    if (histFilter==='expense' && t.type!=='expense') return false;
-    if (histFilter==='today' && tDate!==today) return false;
-    if (histFilter==='week' && tDate<weekStr) return false;
-    if (histFilter==='month' && (tDate<mStart||tDate>mEnd)) return false;
-    if (userF!=='all' && t.userId!==userF) return false;
-    if (rawSearch) {
-      const matchStr = `${getUserName(t.userId)} ${getCatLabel(t.category, t.type)} ${t.reason||''} ${t.amount} ${formatDate(t.date)} ${t.upiId||''} ${UPI_APP_NAMES[t.paymentPlatform]||''}`.toLowerCase();
-      if (!matchStr.includes(rawSearch)) return false;
-    }
-    return true;
-  }).sort((a,b)=>((b.date||'')+(b.time||'')).localeCompare((a.date||'')+(a.time||'')));
-}
-
-/* ─── Transaction CRUD ─── */
-function openTxModal() {
-  editingTxId = null; document.getElementById('txModalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Add Transaction'; document.getElementById('saveTxBtn').innerHTML = '<i class="fa-solid fa-check"></i> Save';
-  setTxType('expense'); document.getElementById('txAmount').value = ''; document.getElementById('txReason').value = ''; document.getElementById('txDate').value = todayStr(); document.getElementById('txTime').value = nowTime();
-  document.getElementById('txUpiId').value = DB.settings.upiId||''; document.getElementById('txPayApp').value = DB.settings.paymentApp||''; document.getElementById('txCatCustom').value = '';
-  selectedCat = ''; othersOpen = false; upiExpanded = false; document.getElementById('upiSection').style.display = 'none'; document.getElementById('upiChevron').style.transform = 'rotate(0deg)';
-  populateTxUserSelect(); renderCatGrid(); toggleModal('txModal', true);
-}
-
-function openEditTx(id) {
-  const tx = DB.transactions.find(t=>t.id===id); if (!tx) return;
-  editingTxId = id; document.getElementById('txModalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Edit Transaction'; document.getElementById('saveTxBtn').innerHTML = '<i class="fa-solid fa-check"></i> Update';
-  setTxType(tx.type); document.getElementById('txAmount').value = tx.amount; document.getElementById('txReason').value = tx.reason||''; document.getElementById('txDate').value = (tx.date||todayStr()).split('T')[0]; document.getElementById('txTime').value = tx.time||nowTime();
-  document.getElementById('txUpiId').value = tx.upiId||''; document.getElementById('txPayApp').value = tx.paymentPlatform||''; document.getElementById('txCatCustom').value = '';
-
-  const matchedCat = getCombinedCats(tx.type).find(c => c.key === tx.category || c.label === tx.category);
-  if (matchedCat && matchedCat.key !== '__others__') { selectedCat = matchedCat.key; othersOpen = false; } 
-  else { selectedCat = '__others__'; othersOpen = true; document.getElementById('txCatCustom').value = getCatLabel(tx.category, tx.type); }
-
-  upiExpanded = !!(tx.upiId); document.getElementById('upiSection').style.display = upiExpanded ? 'flex' : 'none'; document.getElementById('upiChevron').style.transform = upiExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
-  populateTxUserSelect(tx.userId); renderCatGrid(); toggleModal('txModal', true);
-}
-
-function closeTxModal() { toggleModal('txModal',false); }
-
-function setTxType(type) {
-  currentTxType = type;
-  document.getElementById('btnIncome').className = 'toggle-pill-btn'+(type==='income'?' active-income':'');
-  document.getElementById('btnExpense').className = 'toggle-pill-btn'+(type==='expense'?' active-expense':'');
-  if (!editingTxId) { selectedCat=''; othersOpen=false; }
-  renderCatGrid();
-}
-
-function renderCatGrid() {
-  const catsList = getCombinedCats(currentTxType);
-  document.getElementById('catGrid').innerHTML = catsList.map(c => `<div class="cat-chip${selectedCat===c.key?' selected':''}" onclick="selectCat('${c.key}', this)">${c.emoji}<span>${c.label}</span></div>`).join('');
-  document.getElementById('othersSection').style.display = othersOpen ? 'block' : 'none';
-}
-
-function selectCat(key, el) {
-  if (key === '__others__') { selectedCat = '__others__'; othersOpen = true; renderCatGrid(); setTimeout(()=>document.getElementById('txCatCustom').focus(),100); } 
-  else { selectedCat = key; othersOpen = false; document.getElementById('txCatCustom').value = ''; renderCatGrid(); }
-}
-
-function populateTxUserSelect(selectId) {
-  const sel = document.getElementById('txUser'), activeId = selectId || DB.settings.activeUserId;
-  sel.innerHTML = DB.users.map(u=>`<option value="${u.id}"${u.id===activeId?'selected':''}>${u.name}</option>`).join('');
-}
-
-function saveTx() {
-  const amount = parseFloat(document.getElementById('txAmount').value);
-  if (!amount||amount<=0) { showToast('Please enter a valid amount','error'); return; }
-
-  // Modification 1 & 2: Store purely the Category Label so it reads correctly in Excel
-  let catToSave = selectedCat;
-  if (selectedCat === '__others__') {
-    catToSave = document.getElementById('txCatCustom').value.trim();
-    if (!catToSave) { showToast('Please type a custom category','error'); return; }
-  } else {
-    // Explicitly grab the label to avoid storing system ID keys
-    catToSave = getCatLabel(selectedCat, currentTxType) || selectedCat;
-  }
-  if (!catToSave) { showToast('Please select/type a category','error'); return; }
-
-  const reason = document.getElementById('txReason').value.trim(), date = document.getElementById('txDate').value||todayStr(), time = document.getElementById('txTime').value||nowTime(), userId = document.getElementById('txUser').value, upiId = upiExpanded ? document.getElementById('txUpiId').value.trim() : '', paymentPlatform = upiExpanded ? document.getElementById('txPayApp').value : '';
-  
-  if (editingTxId) {
-    const idx = DB.transactions.findIndex(t=>t.id===editingTxId);
-    if (idx!==-1) {
-      const updatedTx = {...DB.transactions[idx],type:currentTxType,amount,category:catToSave,reason,date,time,userId,upiId,paymentPlatform};
-      DB.transactions[idx] = updatedTx;
-      queueSyncEvent('UPDATE_TXN', updatedTx);
-    }
-  } else {
-    const newTx = {id:uid(),type:currentTxType,amount,category:catToSave,reason,date,time,userId,upiId,paymentPlatform};
-    DB.transactions.unshift(newTx);
-    queueSyncEvent('CREATE_TXN', newTx);
-    if (currentTxType==='income') launchConfetti();
+    Array.from(categories).sort().forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      filter.appendChild(opt);
+    });
   }
 
-  rebuildUserStats(userId); saveDB(); closeTxModal(); renderAll(); populateHistUserFilter();
-  
-  // Silent Background Sync Trigger
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true);
-}
+  // Robust Time Filter Logic
+  function applyFilters() {
+    const user = document.getElementById('userFilter').value;
+    const cat = document.getElementById('catFilter').value;
+    const time = document.getElementById('timeFilter').value;
+    
+    let filtered = rawData.transactions;
 
-function deleteTxConfirm(id) { showConfirm('Delete Transaction','This transaction will be permanently removed.','🗑️','Delete','btn-danger',()=>deleteTx(id)); }
-function deleteTx(id) {
-  const idx = DB.transactions.findIndex(t=>t.id===id); if (idx===-1) return;
-  const tx = DB.transactions[idx];
-  queueSyncEvent('DELETE_TXN', { id: id });
-  DB.transactions.splice(idx,1);
-  rebuildUserStats(tx.userId); saveDB(); renderAll(); histPage=0; renderHistory(); populateHistUserFilter();
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); // Silent sync
-}
-
-function toggleUpiSection() { upiExpanded = !upiExpanded; document.getElementById('upiSection').style.display = upiExpanded ? 'flex' : 'none'; document.getElementById('upiChevron').style.transform = upiExpanded ? 'rotate(180deg)' : 'rotate(0deg)'; }
-
-/* ─── Users & Custom Categories ─── */
-function renderUsers() {
-  const el = document.getElementById('usersList'), empty = document.getElementById('usersEmptyState');
-  rebuildUserStats();
-  if (!DB.users.length) { el.innerHTML=''; empty.style.display='flex'; } else {
-    empty.style.display='none';
-    const palettes = ['linear-gradient(135deg,#60a5fa,#3b82f6)','linear-gradient(135deg,#c084fc,#a855f7)','linear-gradient(135deg,#fb7185,#f43f5e)','linear-gradient(135deg,#34d399,#10b981)','linear-gradient(135deg,#fbbf24,#f59e0b)'];
-    el.innerHTML = DB.users.map((u,i)=>`
-      <div class="user-card card ${u.id===DB.settings.activeUserId?' active-user':''}" onclick="setActiveUser('${u.id}')" style="margin-bottom:8px;">
-        <div class="user-avatar" style="background:${palettes[i%palettes.length]}; color:#fff;">${(u.name||'?').charAt(0).toUpperCase()}</div>
-        <div class="user-info">
-          <div class="user-name">${u.name}${u.id===DB.settings.activeUserId?' <span style="font-size:10px;color:var(--blue);font-weight:600;">(active)</span>':''}</div>
-          <div class="user-savings-row">
-            <span style="color:var(--green);">+₹${formatCurrency(u.runningIncome)}</span> &nbsp;·&nbsp;
-            <span style="color:var(--red);">-₹${formatCurrency(u.runningExpense)}</span> &nbsp;·&nbsp;
-            <b style="color:${(u.runningSavings||0)>=0?'var(--blue)':'var(--red)'};">₹${formatCurrency(u.runningSavings)}</b>
-          </div>
-        </div>
-        <div class="user-actions">
-          <button class="icon-btn edit" onclick="event.stopPropagation();openEditUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
-          <button class="icon-btn del" onclick="event.stopPropagation();deleteUserConfirm('${u.id}')"><i class="fa-solid fa-trash-can"></i></button>
-        </div>
-      </div>`).join('');
-  }
-
-  const allCustom = [...(DB.customCats.income||[]).map(c=>({...c, type:'Income'})), ...(DB.customCats.expense||[]).map(c=>({...c, type:'Expense'}))];
-  const catListEl = document.getElementById('customCatList');
-  if (!allCustom.length) {
-    catListEl.innerHTML = '<div style="font-size:12px; color:var(--text-dim); text-align:center; padding: 20px;">No custom categories yet.</div>';
-  } else {
-    catListEl.innerHTML = allCustom.map(c => `
-      <div class="sheet-card card" style="cursor:default; margin-bottom:8px; padding:12px 16px;">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <div style="font-size:24px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;">${c.emoji}</div>
-          <div>
-            <div style="font-weight:600; font-size:14px; color:var(--text);">${c.label}</div>
-            <div style="font-size:10px; color:${c.type==='Income'?'var(--green)':'var(--red)'}; font-weight:700; text-transform:uppercase;">${c.type}</div>
-          </div>
-        </div>
-        <button class="icon-btn del" onclick="deleteCustomCategory('${c.id}', '${c.type}')"><i class="fa-solid fa-trash-can"></i></button>
-      </div>`).join('');
-  }
-}
-
-function setActiveUser(id) { DB.settings.activeUserId=id; saveDB(); renderUsers(); renderDashboard(); showToast('Active user changed','info'); }
-
-function openAddUser() {
-  document.getElementById('userModalTitle').innerHTML='<i class="fa-solid fa-user-plus"></i> Add User';
-  document.getElementById('editUserId').value=''; document.getElementById('userNameInput').value=''; document.getElementById('userSavingsInput').value='';
-  toggleModal('userModal',true);
-}
-function openEditUser(id) {
-  const u=DB.users.find(u=>u.id===id); if(!u) return;
-  document.getElementById('userModalTitle').innerHTML='<i class="fa-solid fa-pen"></i> Edit User';
-  document.getElementById('editUserId').value=id; document.getElementById('userNameInput').value=u.name; document.getElementById('userSavingsInput').value=u.initialSavings||0;
-  toggleModal('userModal',true);
-}
-function saveUser() {
-  const name=document.getElementById('userNameInput').value.trim(); if(!name){showToast('Please enter a name','error');return;}
-  const savings=parseFloat(document.getElementById('userSavingsInput').value)||0, id=document.getElementById('editUserId').value;
-  if(id){
-    const idx=DB.users.findIndex(u=>u.id===id); 
-    if(idx!==-1) {
-      DB.users[idx].name=name; DB.users[idx].initialSavings=savings; rebuildUserStats(id);
-      queueSyncEvent('UPSERT_USER', DB.users[idx]);
+    // Filter by User
+    if (user !== 'all') {
+      filtered = filtered.filter(t => t.userId === user);
     }
-  } else {
-    const nu={id:uid(),name,initialSavings:savings,runningIncome:0,runningExpense:0,runningSavings:savings}; 
-    DB.users.push(nu);
-    queueSyncEvent('UPSERT_USER', nu);
-    if(!DB.settings.activeUserId) DB.settings.activeUserId=nu.id;
-  }
-  saveDB(); toggleModal('userModal',false); renderUsers(); populateUserSelects(); renderDashboard();
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); // Silent sync
-}
 
-function deleteUserConfirm(id) {
-  const u=DB.users.find(u=>u.id===id), cnt=DB.transactions.filter(t=>t.userId===id).length;
-  if(!u) return;
-  showConfirm('Delete User',`Delete "${u.name}"? This also deletes ${cnt} transaction${cnt===1?'':'s'}.`,'⚠️','Delete User','btn-danger',()=>deleteUser(id));
-}
-function deleteUser(id) {
-  if(DB.users.length<=1){showToast('Cannot delete the last user','error');return;}
-  
-  queueSyncEvent('DELETE_USER', { id: id });
-  DB.transactions.filter(t=>t.userId===id).forEach(t => queueSyncEvent('DELETE_TXN', { id: t.id }));
-  DB.transactions=DB.transactions.filter(t=>t.userId!==id); DB.users=DB.users.filter(u=>u.id!==id);
-  if(DB.settings.activeUserId===id) DB.settings.activeUserId=DB.users[0]?.id||null;
-  saveDB(); renderUsers(); renderAll();
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); // Silent sync
-}
+    // Filter by Category (Only applies to expenses, income passes through so total income remains accurate)
+    if (cat !== 'all') {
+      filtered = filtered.filter(t => t.type === 'income' || t.category === cat);
+    }
 
-/* ─── Custom Category Logic ─── */
-function openAddCategoryModal() {
-  document.getElementById('catNameInput').value = ''; document.getElementById('catEmojiInput').value = ''; setNewCatType('expense'); toggleModal('catModal', true);
-}
-function setNewCatType(type) {
-  newCatType = type;
-  document.getElementById('btnCatInc').className = 'toggle-pill-btn' + (type==='income'?' active-income':'');
-  document.getElementById('btnCatExp').className = 'toggle-pill-btn' + (type==='expense'?' active-expense':'');
-}
+    // Filter by Time (Robust Date Handling)
+    const now = new Date();
+    const currYear = now.getFullYear();
+    const currMonth = now.getMonth();
+    const currDay = now.getDate();
 
-function saveCustomCategory() {
-  const label = document.getElementById('catNameInput').value.trim();
-  const emoji = document.getElementById('catEmojiInput').value.trim();
-  if(!label || !emoji) { showToast('Name and Emoji required','error'); return; }
-  
-  // Use label as key so the backend sheet saves the readable name reliably
-  const newCat = { id: uid(), type: newCatType, emoji: emoji, label: label, key: label };
-  DB.customCats[newCatType].push(newCat);
-  queueSyncEvent('CREATE_CAT', newCat);
-
-  saveDB(); toggleModal('catModal', false); renderUsers(); showToast('Category Added!', 'success');
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); // Silent sync
-}
-
-function deleteCustomCategory(id, typeStr) {
-  const type = typeStr.toLowerCase();
-  queueSyncEvent('DELETE_CAT', { id: id });
-  DB.customCats[type] = DB.customCats[type].filter(c => c.id !== id);
-  saveDB(); renderUsers(); showToast('Category Removed', 'info');
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); // Silent sync
-}
-
-/* ─── Analytics Handlers ─── */
-function openAnalyticsModal() { toggleModal('analyticsModal', true); updateAnalyticsModalUI(); }
-function setAnalyticsPeriod(period, btn) {
-  activeAnalyticsPeriod = period;
-  document.querySelectorAll('#analyticsFilters .filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-  updateAnalyticsModalUI(); renderDashboard();
-}
-function updateAnalyticsModalUI() {
-  document.getElementById('analyticsAmountDisplay').textContent = formatCurrency(calculateAnalytics(activeAnalyticsPeriod));
-  const desc = {today:"Today's total expenses", month:"This month's total expenses", year:"This year's total expenses"};
-  document.getElementById('analyticsTitleDesc').textContent = desc[activeAnalyticsPeriod];
-}
-
-/* ─── Selects ─── */
-function populateUserSelects() { populateDashUserSelect(); populateHistUserFilter(); }
-function populateHistUserFilter() {
-  const sel=document.getElementById('histUserFilter'); if(!sel) return;
-  const cur=sel.value;
-  sel.innerHTML='<option value="all">All Users</option>'+DB.users.map(u=>`<option value="${u.id}"${u.id===cur?'selected':''}>${u.name}</option>`).join('');
-}
-
-/* ─── Settings & Sheet Manager ─── */
-function getActiveSheetUrl() {
-  const activeSheet = DB.settings.sheets.find(s=>s.id === DB.settings.activeSheetId);
-  return activeSheet ? activeSheet.url : '';
-}
-
-function renderSettings() {
-  const list = document.getElementById('sheetManagerList');
-  list.innerHTML = DB.settings.sheets.map(s => `
-    <div class="sheet-card card ${s.id === DB.settings.activeSheetId ? 'active' : ''}" onclick="switchSheet('${s.id}')">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <i class="fa-solid fa-file-excel" style="color:${s.id === DB.settings.activeSheetId ? '#fff' : 'var(--green)'}; font-size:18px;"></i>
-        <div style="font-weight:600; font-size:14px;">${s.name}</div>
-      </div>
-      ${s.id === DB.settings.activeSheetId ? '<span class="sheet-badge">Active</span>' : ''}
-    </div>`).join('');
-
-  const url = getActiveSheetUrl();
-  document.getElementById('urlStatus').textContent = url ? url.substring(0,45)+'…' : 'Not configured';
-  document.getElementById('lastSyncLabel').textContent = DB.settings.lastSync ? 'Last: '+new Date(DB.settings.lastSync).toLocaleString('en-IN') : 'Never synced';
-  document.getElementById('settingsUpiLabel').textContent = DB.settings.upiId||'Not set';
-  document.getElementById('settingsAppLabel').textContent = UPI_APP_NAMES[DB.settings.paymentApp]||'None';
-  
-  const appSel=document.getElementById('settingsAppSelect'); if(appSel) appSel.value=DB.settings.paymentApp||'';
-  const refSel=document.getElementById('settingsRefreshSelect'); if(refSel) refSel.value=DB.settings.refreshInterval||'15';
-  
-  // Render Personalisation Details
-  const fontSel = document.getElementById('settingsFontSelect'); if(fontSel) fontSel.value = DB.settings.fontStyle || 'default';
-  const slider = document.getElementById('bgOpacitySlider'); if(slider) slider.value = DB.settings.bgOpacity !== undefined ? DB.settings.bgOpacity : 1;
-  const currentTheme = DB.settings.theme || 'dark';
-  document.getElementById('btnThemeDark').classList.toggle('active-theme', currentTheme === 'dark');
-  document.getElementById('btnThemeLight').classList.toggle('active-theme', currentTheme === 'light');
-
-  updateSyncDot();
-}
-
-function saveNewSheet() {
-  const name = document.getElementById('sheetNameInput').value.trim();
-  const url = document.getElementById('sheetUrlInput').value.trim();
-  if(!name) { showToast('Nickname required','error'); return; }
-  
-  const newSheet = { id: uid(), name, url };
-  DB.settings.sheets.push(newSheet);
-  DB.workspaces[newSheet.id] = { transactions: [], users: [{id:uid(), name:'Me', initialSavings:0, runningIncome:0, runningExpense:0, runningSavings:0}], syncQueue: [], customCats: {income:[], expense:[]} };
-  
-  saveDB(); toggleModal('sheetModal', false);
-  document.getElementById('sheetNameInput').value = ''; document.getElementById('sheetUrlInput').value = '';
-  renderSettings(); showToast('Spreadsheet added!', 'success');
-}
-
-function switchSheet(sheetId) {
-  if (sheetId === DB.settings.activeSheetId) return;
-  DB.workspaces[DB.settings.activeSheetId] = { transactions: [...DB.transactions], users: [...DB.users], syncQueue: [...DB.syncQueue], customCats: JSON.parse(JSON.stringify(DB.customCats)) };
-  DB.settings.activeSheetId = sheetId;
-  const ws = DB.workspaces[sheetId];
-  DB.transactions = ws.transactions || [];
-  DB.users = ws.users || [{id:uid(), name:'Me', initialSavings:0, runningIncome:0, runningExpense:0, runningSavings:0}];
-  DB.syncQueue = ws.syncQueue || [];
-  DB.customCats = ws.customCats || {income:[], expense:[]};
-  DB.settings.activeUserId = DB.users[0].id;
-  
-  saveDB(); renderAll(); showToast('Workspace Switched', 'info');
-  if (getActiveSheetUrl() && navigator.onLine) triggerSync(true);
-}
-
-function editActiveSheetUrl() {
-  const activeSheet = DB.settings.sheets.find(s=>s.id === DB.settings.activeSheetId);
-  if (!activeSheet) return;
-  const url = prompt(`Enter Apps Script URL for "${activeSheet.name}":`, activeSheet.url || '');
-  if (url !== null) { activeSheet.url = url.trim(); saveDB(); renderSettings(); showToast('URL updated', 'success'); }
-}
-
-function editUpi() { const id=prompt('Enter UPI ID:',DB.settings.upiId||''); if(id!==null){DB.settings.upiId=id.trim();saveDB();renderSettings();renderUpiLaunchButtons();showToast('UPI ID updated','success');} }
-function updateDefaultApp(val) { DB.settings.paymentApp=val; saveDB(); renderSettings(); renderUpiLaunchButtons(); showToast('Default app updated','success'); }
-function updateSyncDot() { const dot=document.getElementById('syncDot'); if(dot) dot.style.display=getActiveSheetUrl()?'block':'none'; }
-
-function clearAllData() {
-  showConfirm('Clear Workspace','Delete local data for this sheet. Cloud data remains safe.','💣','Clear Everything','btn-danger',()=>{
-    DB.transactions=[]; DB.users=[{id:uid(),name:'Me',initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0}]; DB.syncQueue=[]; DB.settings.activeUserId=DB.users[0].id;
-    saveDB(); renderAll(); showToast('Workspace cleared','info');
-  });
-}
-function resetApp() {
-  showConfirm('Reset Entire App','Erase ALL settings, sheets, and data.','🔄','Reset App','btn-danger',()=>{
-    localStorage.removeItem('moneyProDB_v2'); localStorage.removeItem('moneyProDB'); localStorage.removeItem('moneyPro_v3'); location.reload();
-  });
-}
-
-/* ─── EVENT SOURCING CLOUD SYNC ENGINE ─── */
-async function triggerSync(isAuto = false) {
-  const url = getActiveSheetUrl();
-  if (!url) { if (!isAuto) showToast('No Google Sheet URL set for this workspace.', 'warning'); return; }
-  if (!navigator.onLine) { if (!isAuto) showToast('You are offline. Data saved locally.', 'info'); updateStatusIndicators(); return; }
-  if (isSyncing) return;
-  
-  isSyncing = true; updateStatusIndicators();
-  if (!isAuto) setLoader(true, 'Syncing with Cloud…');
-  
-  try {
-    const payload = { syncQueue: DB.syncQueue };
-    const resp = await fetch(url,{ method:'POST', body:JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
-    const data = await resp.json();
-    if(data.status==='success'){
+    filtered = filtered.filter(t => {
+      if (!t.date) return false;
       
-      // Master Sync: The backend returns the absolute source of truth
-      DB.transactions = data.transactions || DB.transactions;
-      DB.users = data.users || DB.users;
-      if (data.customCats) DB.customCats = data.customCats;
-      DB.syncQueue = []; DB.settings.lastSync = Date.now();
-      rebuildUserStats(); saveDB(); renderAll();
+      // Parse strictly to avoid JS timezone shifts (assuming format YYYY-MM-DD)
+      const dateParts = t.date.split('T')[0].split('-');
+      if (dateParts.length !== 3) return false;
       
-      if (!isAuto) { setLoader(false); showToast('Sync successful! ☁️','success'); toggleModal('syncModal', true); }
-    } else {
-      if (!isAuto) { setLoader(false); showToast('Sync failed: '+(data.message||'Unknown error'),'error'); }
-    }
-  } catch(err) {
-    if (!isAuto) { setLoader(false); showToast('Sync error: '+err.message,'error'); }
-  } finally { isSyncing = false; updateStatusIndicators(); }
-}
+      const tYear = parseInt(dateParts[0], 10);
+      const tMonth = parseInt(dateParts[1], 10) - 1; // 0-indexed month
+      const tDay = parseInt(dateParts[2], 10);
+      
+      const tDateObj = new Date(tYear, tMonth, tDay);
 
-/* ─── Confetti & Guide ─── */
-function launchConfetti() { if(typeof confetti!=='undefined') confetti({particleCount:80,spread:60,origin:{y:0.7},colors:['#60a5fa','#34d399','#c084fc','#fbbf24']}); }
-function copyScriptCode() { navigator.clipboard.writeText(document.getElementById('scriptCodeBlock').textContent).then(()=>showToast('Script copied!','success')).catch(()=>showToast('Error copying','error')); }
+      if (time === 'day') {
+        return tYear === currYear && tMonth === currMonth && tDay === currDay;
+      } else if (time === 'week') {
+        const weekAgo = new Date(currYear, currMonth, currDay - 7);
+        return tDateObj >= weekAgo;
+      } else if (time === 'month') {
+        return tYear === currYear && tMonth === currMonth;
+      } else if (time === 'year') {
+        return tYear === currYear;
+      }
+      return true; // 'all'
+    });
 
-document.addEventListener('DOMContentLoaded', init);
+    updateDashboard(filtered);
+  }
+
+  function updateDashboard(txs) {
+    let sumInc = 0; let sumExp = 0;
+    const timeline = {};
+    const categories = {};
+    const userExpenses = {}; // For User Comparison Chart
+
+    txs.forEach(t => {
+      const amt = parseFloat(t.amount) || 0;
+      const dateStr = (t.date || '').split('T')[0];
+      
+      if (t.type === 'income') sumInc += amt;
+      if (t.type === 'expense') {
+        sumExp += amt;
+        
+        // Category Breakdown
+        const cat = t.category || 'Other';
+        categories[cat] = (categories[cat] || 0) + amt;
+
+        // User Comparison Breakdown
+        const uname = getUserName(t.userId);
+        userExpenses[uname] = (userExpenses[uname] || 0) + amt;
+      }
+
+      // Cash flow Timeline
+      if (!timeline[dateStr]) timeline[dateStr] = { in: 0, out: 0 };
+      if (t.type === 'income') timeline[dateStr].in += amt;
+      if (t.type === 'expense') timeline[dateStr].out += amt;
+    });
+
+    document.getElementById('sumIncome').textContent = sumInc.toLocaleString('en-IN');
+    document.getElementById('sumExpense').textContent = sumExp.toLocaleString('en-IN');
+    document.getElementById('sumNet').textContent = (sumInc - sumExp).toLocaleString('en-IN');
+
+    renderDonutChart(sumInc, sumExp);
+    renderLineChart(timeline);
+    renderBarChart(categories);
+    renderUserComparisonChart(userExpenses);
+  }
+
+  // --- CHART RENDERING ---
+  Chart.defaults.color = '#cbd5e1';
+  Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+  function renderDonutChart(inc, exp) {
+    const ctx = document.getElementById('donutChart');
+    if (charts.donut) charts.donut.destroy();
+    
+    // Prevent rendering empty doughnut if no data
+    if (inc === 0 && exp === 0) inc = 0.001; 
+
+    charts.donut = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Income', 'Expense'],
+        datasets: [{
+          data: [inc, exp],
+          backgroundColor: ['#34d399', '#fb7185'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '70%' }
+    });
+  }
+
+  function renderLineChart(timelineData) {
+    const ctx = document.getElementById('lineChart');
+    if (charts.line) charts.line.destroy();
+
+    const sortedDates = Object.keys(timelineData).sort();
+    const labels = sortedDates.map(d => {
+      const parts = d.split('-'); return `${parts[2]}/${parts[1]}`; // DD/MM
+    });
+    const incData = sortedDates.map(d => timelineData[d].in);
+    const expData = sortedDates.map(d => timelineData[d].out);
+
+    charts.line = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Income', data: incData, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.1)', fill: true, tension: 0.4 },
+          { label: 'Expense', data: expData, borderColor: '#fb7185', backgroundColor: 'rgba(251,113,133,0.1)', fill: true, tension: 0.4 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } },
+        interaction: { mode: 'index', intersect: false }
+      }
+    });
+  }
+
+  function renderBarChart(catData) {
+    const ctx = document.getElementById('barChart');
+    if (charts.bar) charts.bar.destroy();
+
+    const sortedCats = Object.keys(catData).sort((a,b) => catData[b] - catData[a]);
+    const values = sortedCats.map(c => catData[c]);
+
+    charts.bar = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: sortedCats,
+        datasets: [{
+          label: 'Expenses',
+          data: values,
+          backgroundColor: '#60a5fa',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+
+  function renderUserComparisonChart(userExpData) {
+    const ctx = document.getElementById('userExpenseChart');
+    if (charts.userExp) charts.userExp.destroy();
+
+    const users = Object.keys(userExpData);
+    const values = users.map(u => userExpData[u]);
+
+    // Color Palette for users
+    const colors = ['#c084fc', '#fbbf24', '#34d399', '#60a5fa', '#fb7185'];
+
+    charts.userExp = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: users,
+        datasets: [{
+          data: values,
+          backgroundColor: colors.slice(0, users.length),
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+  }
+
+  // Initialize
+  window.onload = fetchCloudData;
 </script>
 </body>
 </html>
