@@ -50,10 +50,9 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    padding-bottom: 120px; /* Space for bottom nav */
+    padding-bottom: 120px;
   }
 
-  /* Glassmorphism Header & Cards */
   .glass-panel {
     background: rgba(15, 15, 25, 0.65);
     backdrop-filter: blur(20px);
@@ -121,7 +120,6 @@
   input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; cursor: pointer; }
   [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
 
-  /* Grid Layout */
   .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -145,7 +143,6 @@
     letter-spacing: 0.05em;
   }
 
-  /* Bottom Navigation to match index.html */
   .bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
     background: rgba(5, 5, 8, 0.6);
@@ -178,7 +175,6 @@
   }
   .nav-fab:hover { transform: translateY(-8px) scale(1.05); }
 
-  /* Loader */
   #loader {
     position: fixed; inset: 0; z-index: 500;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -267,17 +263,27 @@
 
   <div class="dashboard-grid">
     <div class="glass-panel">
-      <div class="chart-title">Expense By User</div>
+      <div class="chart-title">Global Expense By User</div>
       <div class="chart-container"><canvas id="userExpenseChart"></canvas></div>
     </div>
-    <div class="glass-panel">
+    <div class="glass-panel" style="grid-column: span 2;">
       <div class="chart-title">Expense Category (Donut)</div>
       <div class="chart-container"><canvas id="catDonutChart"></canvas></div>
     </div>
   </div>
 
-  <div class="dashboard-grid" style="grid-template-columns: 1fr;">
+  <div class="dashboard-grid">
     <div class="glass-panel">
+      <div class="chart-title" style="margin-bottom:10px;">Compare Two Users</div>
+      <div style="display:flex; gap:6px; margin-bottom:12px;">
+        <select id="compUser1" onchange="applyFilters()" style="flex:1; padding:6px; font-size:12px;"></select>
+        <span style="color:var(--text-dim); font-size:12px; align-self:center; font-weight:bold;">VS</span>
+        <select id="compUser2" onchange="applyFilters()" style="flex:1; padding:6px; font-size:12px;"></select>
+      </div>
+      <div class="chart-container" style="height:250px;"><canvas id="compareDonutChart"></canvas></div>
+    </div>
+
+    <div class="glass-panel" style="grid-column: span 2;">
       <div class="chart-title">Expense Category Comparison (Bar)</div>
       <div class="chart-container"><canvas id="barChart"></canvas></div>
     </div>
@@ -360,7 +366,6 @@
     let activeId = localDB.settings?.activeSheetId || 'default';
     let sheetUrl = new URLSearchParams(window.location.search).get('url');
 
-    // Smart Matching: If index.html sent us a URL, automatically find that exact workspace history
     if (sheetUrl && localDB.settings?.sheets) {
       const matchedSheet = localDB.settings.sheets.find(s => s.url === sheetUrl);
       if (matchedSheet) activeId = matchedSheet.id;
@@ -372,7 +377,6 @@
       rawData.users = localDB.workspaces[activeId].users || [];
       hasData = rawData.transactions.length > 0 || rawData.users.length > 0;
     } else if (localDB.transactions) {
-      // Legacy Fallback
       rawData.transactions = localDB.transactions || [];
       rawData.users = localDB.users || [];
       hasData = rawData.transactions.length > 0 || rawData.users.length > 0;
@@ -389,17 +393,14 @@
 
   // Dual Sync process: Local immediately -> Cloud in the background
   async function fetchCloudData() {
-    // 1. Pull data directly from index.html's storage instantly
     const { hasData, localDB, activeId, sheetUrl } = loadLocalDataAndRender();
 
-    // 2. Resolve the final Google Sheet URL
     let finalUrl = sheetUrl;
     if (!finalUrl) {
       const activeSheet = localDB.settings?.sheets?.find(s => s.id === activeId);
       if (activeSheet && activeSheet.url) finalUrl = activeSheet.url;
     }
 
-    // 3. Verify with Google Sheet database
     if (finalUrl && navigator.onLine) {
       try {
         if (!hasData) document.getElementById('loader').style.display = 'flex';
@@ -421,7 +422,6 @@
           document.getElementById('loader').style.display = 'none';
           document.getElementById('main-content').style.display = 'block';
           
-          // Securely save the fresh Cloud data back so index.html is also updated
           if (localDB.workspaces && localDB.workspaces[activeId]) {
             localDB.workspaces[activeId].transactions = rawData.transactions;
             localDB.workspaces[activeId].users = rawData.users;
@@ -451,9 +451,6 @@
     const currUser = document.getElementById('userFilter').value;
     const currCat = document.getElementById('catFilter').value;
     
-    document.getElementById('userFilter').innerHTML = '<option value="all">All Users</option>';
-    document.getElementById('catFilter').innerHTML = '<option value="all">All Categories</option>';
-    
     populateUserFilter();
     populateCategoryFilter();
     
@@ -470,12 +467,37 @@
 
   function populateUserFilter() {
     const filter = document.getElementById('userFilter');
+    const comp1 = document.getElementById('compUser1');
+    const comp2 = document.getElementById('compUser2');
+    
+    const currU1 = comp1 ? comp1.value : null;
+    const currU2 = comp2 ? comp2.value : null;
+    
+    let html = '<option value="all">All Users</option>';
+    let compHtml = '';
+    
     rawData.users.forEach(u => {
-      const opt = document.createElement('option');
-      opt.value = u.id;
-      opt.textContent = u.name;
-      filter.appendChild(opt);
+      html += `<option value="${u.id}">${u.name}</option>`;
+      compHtml += `<option value="${u.id}">${u.name}</option>`;
     });
+
+    filter.innerHTML = html;
+    
+    if (comp1) {
+      comp1.innerHTML = compHtml;
+      if (currU1 && document.querySelector(`#compUser1 option[value="${currU1}"]`)) {
+          comp1.value = currU1;
+      }
+    }
+    
+    if (comp2) {
+      comp2.innerHTML = compHtml;
+      if (currU2 && document.querySelector(`#compUser2 option[value="${currU2}"]`)) {
+          comp2.value = currU2;
+      } else if (rawData.users.length > 1) {
+          comp2.selectedIndex = 1; // Default to second user if exists
+      }
+    }
   }
 
   function populateCategoryFilter() {
@@ -490,12 +512,11 @@
       }
     });
 
+    let html = '<option value="all">All Categories</option>';
     Array.from(categories).sort().forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c;
-      opt.textContent = c;
-      filter.appendChild(opt);
+      html += `<option value="${c}">${c}</option>`;
     });
+    filter.innerHTML = html;
   }
 
   function applyFilters() {
@@ -503,22 +524,20 @@
     const cat = document.getElementById('catFilter').value;
     const time = document.getElementById('timeFilter').value;
     
-    let filtered = rawData.transactions;
+    let baseFiltered = rawData.transactions;
 
-    if (user !== 'all') {
-      filtered = filtered.filter(t => t.userId === user);
-    }
-
+    // 1. Filter by Category (applies to both main charts and comparison chart)
     if (cat !== 'all') {
-      filtered = filtered.filter(t => t.type === 'income' || t.category === cat);
+      baseFiltered = baseFiltered.filter(t => t.type === 'income' || t.category === cat);
     }
 
+    // 2. Filter by Time (applies to both main charts and comparison chart)
     const now = new Date();
     const currYear = now.getFullYear();
     const currMonth = now.getMonth();
     const currDay = now.getDate();
 
-    filtered = filtered.filter(t => {
+    baseFiltered = baseFiltered.filter(t => {
       if (!t.date) return false;
       
       let tDateObj;
@@ -547,29 +566,33 @@
       } else if (time === 'custom') {
         const startVal = document.getElementById('startDate').value;
         const endVal = document.getElementById('endDate').value;
-        
         if (startVal && endVal) {
           const sParts = startVal.split('-');
           const sDate = new Date(parseInt(sParts[0],10), parseInt(sParts[1],10)-1, parseInt(sParts[2],10));
-          
           const eParts = endVal.split('-');
           const eDate = new Date(parseInt(eParts[0],10), parseInt(eParts[1],10)-1, parseInt(eParts[2],10));
-          
           return tDateObj >= sDate && tDateObj <= eDate;
         }
       }
       return true;
     });
 
-    updateDashboard(filtered);
+    // 3. Filter by User (Applies ONLY to global charts, NOT the comparison chart)
+    let finalFiltered = baseFiltered;
+    if (user !== 'all') {
+      finalFiltered = baseFiltered.filter(t => t.userId === user);
+    }
+
+    updateDashboard(finalFiltered, baseFiltered);
   }
 
-  function updateDashboard(txs) {
+  function updateDashboard(txs, baseTxs) {
     let sumInc = 0; let sumExp = 0;
     const timeline = {};
     const categories = {};
     const userExpenses = {}; 
 
+    // Calculate main chart data
     txs.forEach(t => {
       const amt = parseFloat(t.amount) || 0;
       const dateStr = (t.date || '').split('T')[0];
@@ -590,17 +613,30 @@
       if (t.type === 'expense') timeline[dateStr].out += amt;
     });
 
+    // Calculate Compare Users data from baseTxs (ignoring global user filter)
+    const u1Id = document.getElementById('compUser1').value;
+    const u2Id = document.getElementById('compUser2').value;
+    let u1Exp = 0, u2Exp = 0;
+    
+    baseTxs.forEach(t => {
+      if (t.type === 'expense') {
+        if (t.userId === u1Id) u1Exp += parseFloat(t.amount) || 0;
+        if (t.userId === u2Id) u2Exp += parseFloat(t.amount) || 0;
+      }
+    });
+
+    // Update UI Elements
     document.getElementById('sumIncome').textContent = sumInc.toLocaleString('en-IN');
     document.getElementById('sumExpense').textContent = sumExp.toLocaleString('en-IN');
     document.getElementById('sumNet').textContent = (sumInc - sumExp).toLocaleString('en-IN');
 
+    // Render Charts
     renderDonutChart(sumInc, sumExp);
     renderLineChart(timeline);
     renderUserComparisonChart(userExpenses);
-    
-    // Pass category data to both Bar Chart and new Donut Chart
     renderBarChart(categories);
     renderCatDonutChart(categories);
+    renderCompareUsersChart(u1Id, u1Exp, u2Id, u2Exp);
   }
 
   Chart.defaults.color = '#cbd5e1';
@@ -609,7 +645,6 @@
   function renderDonutChart(inc, exp) {
     const ctx = document.getElementById('donutChart');
     if (charts.donut) charts.donut.destroy();
-    
     if (inc === 0 && exp === 0) inc = 0.001; 
 
     charts.donut = new Chart(ctx, {
@@ -665,7 +700,6 @@
 
     const users = Object.keys(userExpData);
     const values = users.map(u => userExpData[u]);
-
     const colors = ['#c084fc', '#fbbf24', '#34d399', '#60a5fa', '#fb7185'];
 
     charts.userExp = new Chart(ctx, {
@@ -686,14 +720,12 @@
     });
   }
 
-  // --- NEW: Category Donut Chart ---
   function renderCatDonutChart(catData) {
     const ctx = document.getElementById('catDonutChart');
     if (charts.catDonut) charts.catDonut.destroy();
 
     const sortedCats = Object.keys(catData).sort((a,b) => catData[b] - catData[a]);
     const values = sortedCats.map(c => catData[c]);
-    
     const colors = ['#fb7185', '#60a5fa', '#34d399', '#fbbf24', '#c084fc', '#f472b6', '#38bdf8', '#4ade80', '#facc15', '#a78bfa', '#e879f9', '#2dd4bf'];
 
     charts.catDonut = new Chart(ctx, {
@@ -715,7 +747,6 @@
     });
   }
 
-  // --- Category Bar Chart ---
   function renderBarChart(catData) {
     const ctx = document.getElementById('barChart');
     if (charts.bar) charts.bar.destroy();
@@ -738,6 +769,36 @@
         responsive: true, maintainAspectRatio: false,
         scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } },
         plugins: { legend: { display: false } }
+      }
+    });
+  }
+
+  // --- NEW: Compare Two Users Doughnut Chart ---
+  function renderCompareUsersChart(u1Id, u1Exp, u2Id, u2Exp) {
+    const ctx = document.getElementById('compareDonutChart');
+    if (charts.compareDonut) charts.compareDonut.destroy();
+
+    const name1 = getUserName(u1Id) || 'User 1';
+    const name2 = getUserName(u2Id) || 'User 2';
+
+    // Prevent completely empty chart rendering error
+    if (u1Exp === 0 && u2Exp === 0) { u1Exp = 0.001; } 
+
+    charts.compareDonut = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: [name1, name2],
+        datasets: [{
+          data: [u1Exp, u2Exp],
+          backgroundColor: ['#60a5fa', '#fbbf24'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        cutout: '65%'
       }
     });
   }
