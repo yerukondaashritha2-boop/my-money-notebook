@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Money Pro Analytics</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -92,9 +92,11 @@
     gap: 10px;
     flex-wrap: wrap;
     align-items: center;
+    width: 100%;
+    justify-content: flex-end;
   }
 
-  select, .btn {
+  select, .btn, input[type="date"] {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255,255,255,0.1);
     color: var(--text);
@@ -108,12 +110,17 @@
     backdrop-filter: blur(10px);
   }
 
-  [data-theme="light"] select, [data-theme="light"] .btn {
+  [data-theme="light"] select, [data-theme="light"] .btn, [data-theme="light"] input[type="date"] {
     background: rgba(0,0,0,0.05);
     border-color: rgba(0,0,0,0.1);
   }
 
   select option { background: #12121c; color: #fff; }
+  [data-theme="light"] select option { background: #ffffff; color: var(--text); }
+  
+  /* Make date picker icon visible in dark mode */
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; cursor: pointer; }
+  [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
 
   /* Grid Layout */
   .dashboard-grid {
@@ -201,7 +208,7 @@
 
 <div id="loader">
   <div class="spinner"></div>
-  <h2 style="font-family: var(--font-display);">Analyzing Cloud Data...</h2>
+  <h2 style="font-family: var(--font-display);">Syncing Data...</h2>
 </div>
 
 <div class="container" style="display: none;" id="main-content">
@@ -214,14 +221,22 @@
       <select id="catFilter" onchange="applyFilters()">
         <option value="all">All Categories</option>
       </select>
-      <select id="timeFilter" onchange="applyFilters()">
+      <select id="timeFilter" onchange="toggleCustomDate(); applyFilters()">
         <option value="all">All Time</option>
         <option value="year">This Year</option>
         <option value="month" selected>This Month</option>
         <option value="week">This Week</option>
         <option value="day">Today</option>
+        <option value="custom">Custom Range</option>
       </select>
       <button class="btn desktop-only" onclick="window.location.href='index.html'" style="color: var(--blue); border-color: rgba(96,165,250,0.3);"><i class="fa-solid fa-arrow-left"></i> Home</button>
+      
+      <div id="customDateContainer" style="display: none; gap: 8px; align-items: center; margin-top: 10px; width: 100%; justify-content: flex-end;">
+        <span style="font-size: 12px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">From:</span>
+        <input type="date" id="startDate" onchange="applyFilters()">
+        <span style="font-size: 12px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">To:</span>
+        <input type="date" id="endDate" onchange="applyFilters()">
+      </div>
     </div>
   </div>
 
@@ -275,17 +290,45 @@
   let rawData = { transactions: [], users: [] };
   let charts = {};
 
-  // Theme Syncing from index.html settings
+  // Show/Hide Custom Date Fields
+  function toggleCustomDate() {
+    const timeFilter = document.getElementById('timeFilter').value;
+    const dateContainer = document.getElementById('customDateContainer');
+    if (timeFilter === 'custom') {
+      dateContainer.style.display = 'flex';
+    } else {
+      dateContainer.style.display = 'none';
+      document.getElementById('startDate').value = '';
+      document.getElementById('endDate').value = '';
+    }
+  }
+
+  // Exact Syncing of Settings from index.html
   function applySavedTheme() {
     try {
       const localDB = JSON.parse(localStorage.getItem('moneyProDB_v3') || '{}');
       if (localDB.settings) {
+        // Sync Background
         if (localDB.settings.customBg) document.getElementById('app-background').style.backgroundImage = `url(${localDB.settings.customBg})`;
         if (localDB.settings.bgOpacity !== undefined) document.getElementById('app-background').style.opacity = localDB.settings.bgOpacity;
+        
+        // Sync Dark/Light Mode
         if (localDB.settings.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        
+        // Sync Custom Fonts
+        const root = document.documentElement;
+        if (localDB.settings.fontStyle === 'inter') {
+          root.style.setProperty('--font-display', "'Inter', sans-serif");
+          root.style.setProperty('--font-body', "'Inter', sans-serif");
+        } else if (localDB.settings.fontStyle === 'poppins') {
+          root.style.setProperty('--font-display', "'Poppins', sans-serif");
+          root.style.setProperty('--font-body', "'Poppins', sans-serif");
+        } else if (localDB.settings.fontStyle === 'roboto') {
+          root.style.setProperty('--font-display', "'Roboto', sans-serif");
+          root.style.setProperty('--font-body', "'Roboto', sans-serif");
+        }
       }
       
-      // Hide desktop back button if on mobile (since bottom nav is there)
       if (window.innerWidth < 768) {
         const desktopBtn = document.querySelector('.desktop-only');
         if (desktopBtn) desktopBtn.style.display = 'none';
@@ -293,14 +336,24 @@
     } catch(e) { console.error("Theme load error", e); }
   }
 
-  // Fetch Data
+  // Smart Syncing: Checks URL params, fallbacks to local DB URL
   async function fetchCloudData() {
     applySavedTheme();
-    const params = new URLSearchParams(window.location.search);
-    const sheetUrl = params.get('url');
+    
+    let sheetUrl = new URLSearchParams(window.location.search).get('url');
+    
+    // Auto-detect URL if missing from link
+    if (!sheetUrl) {
+      try {
+        const localDB = JSON.parse(localStorage.getItem('moneyProDB_v3') || '{}');
+        const activeId = localDB.settings?.activeSheetId;
+        const activeSheet = localDB.settings?.sheets?.find(s => s.id === activeId);
+        if (activeSheet && activeSheet.url) sheetUrl = activeSheet.url;
+      } catch(e) {}
+    }
 
     if (!sheetUrl) {
-      alert("No Google Sheet URL provided. Redirecting to Home.");
+      alert("No Google Sheet URL found. Please connect a sheet in the main app.");
       window.location.href = 'index.html';
       return;
     }
@@ -327,7 +380,7 @@
         throw new Error(data.message || 'Failed to fetch');
       }
     } catch (err) {
-      alert("Error fetching data: " + err.message);
+      alert("Error syncing data from cloud: " + err.message);
       document.getElementById('loader').innerHTML = '<h2>Failed to load data.</h2><button class="btn" onclick="window.location.href=\'index.html\'">Go Back</button>';
     }
   }
@@ -353,7 +406,6 @@
     
     rawData.transactions.forEach(t => {
       if (t.type === 'expense' && t.category) {
-        // Strip out 'id_' keys if any leaked, otherwise use readable label
         let label = t.category;
         if(label.startsWith('id_') || label.startsWith('custom_')) return; 
         categories.add(label);
@@ -368,7 +420,7 @@
     });
   }
 
-  // Robust Time Filter Logic
+  // Precise Time Filter Logic (Includes Custom Range)
   function applyFilters() {
     const user = document.getElementById('userFilter').value;
     const cat = document.getElementById('catFilter').value;
@@ -381,12 +433,12 @@
       filtered = filtered.filter(t => t.userId === user);
     }
 
-    // Filter by Category (Only applies to expenses, income passes through so total income remains accurate)
+    // Filter by Category
     if (cat !== 'all') {
       filtered = filtered.filter(t => t.type === 'income' || t.category === cat);
     }
 
-    // Filter by Time (Robust Date Handling)
+    // Filter by Time
     const now = new Date();
     const currYear = now.getFullYear();
     const currMonth = now.getMonth();
@@ -395,12 +447,11 @@
     filtered = filtered.filter(t => {
       if (!t.date) return false;
       
-      // Parse strictly to avoid JS timezone shifts (assuming format YYYY-MM-DD)
       const dateParts = t.date.split('T')[0].split('-');
       if (dateParts.length !== 3) return false;
       
       const tYear = parseInt(dateParts[0], 10);
-      const tMonth = parseInt(dateParts[1], 10) - 1; // 0-indexed month
+      const tMonth = parseInt(dateParts[1], 10) - 1; 
       const tDay = parseInt(dateParts[2], 10);
       
       const tDateObj = new Date(tYear, tMonth, tDay);
@@ -414,8 +465,21 @@
         return tYear === currYear && tMonth === currMonth;
       } else if (time === 'year') {
         return tYear === currYear;
+      } else if (time === 'custom') {
+        const startVal = document.getElementById('startDate').value;
+        const endVal = document.getElementById('endDate').value;
+        
+        if (startVal && endVal) {
+          const sParts = startVal.split('-');
+          const sDate = new Date(parseInt(sParts[0],10), parseInt(sParts[1],10)-1, parseInt(sParts[2],10));
+          
+          const eParts = endVal.split('-');
+          const eDate = new Date(parseInt(eParts[0],10), parseInt(eParts[1],10)-1, parseInt(eParts[2],10));
+          
+          return tDateObj >= sDate && tDateObj <= eDate;
+        }
       }
-      return true; // 'all'
+      return true; // 'all' or empty custom
     });
 
     updateDashboard(filtered);
@@ -425,7 +489,7 @@
     let sumInc = 0; let sumExp = 0;
     const timeline = {};
     const categories = {};
-    const userExpenses = {}; // For User Comparison Chart
+    const userExpenses = {}; 
 
     txs.forEach(t => {
       const amt = parseFloat(t.amount) || 0;
@@ -435,16 +499,13 @@
       if (t.type === 'expense') {
         sumExp += amt;
         
-        // Category Breakdown
         const cat = t.category || 'Other';
         categories[cat] = (categories[cat] || 0) + amt;
 
-        // User Comparison Breakdown
         const uname = getUserName(t.userId);
         userExpenses[uname] = (userExpenses[uname] || 0) + amt;
       }
 
-      // Cash flow Timeline
       if (!timeline[dateStr]) timeline[dateStr] = { in: 0, out: 0 };
       if (t.type === 'income') timeline[dateStr].in += amt;
       if (t.type === 'expense') timeline[dateStr].out += amt;
@@ -468,7 +529,6 @@
     const ctx = document.getElementById('donutChart');
     if (charts.donut) charts.donut.destroy();
     
-    // Prevent rendering empty doughnut if no data
     if (inc === 0 && exp === 0) inc = 0.001; 
 
     charts.donut = new Chart(ctx, {
@@ -492,7 +552,7 @@
 
     const sortedDates = Object.keys(timelineData).sort();
     const labels = sortedDates.map(d => {
-      const parts = d.split('-'); return `${parts[2]}/${parts[1]}`; // DD/MM
+      const parts = d.split('-'); return `${parts[2]}/${parts[1]}`; 
     });
     const incData = sortedDates.map(d => timelineData[d].in);
     const expData = sortedDates.map(d => timelineData[d].out);
@@ -547,7 +607,6 @@
     const users = Object.keys(userExpData);
     const values = users.map(u => userExpData[u]);
 
-    // Color Palette for users
     const colors = ['#c084fc', '#fbbf24', '#34d399', '#60a5fa', '#fb7185'];
 
     charts.userExp = new Chart(ctx, {
@@ -568,7 +627,6 @@
     });
   }
 
-  // Initialize
   window.onload = fetchCloudData;
 </script>
 </body>
