@@ -118,7 +118,6 @@
   select option { background: #12121c; color: #fff; }
   [data-theme="light"] select option { background: #ffffff; color: var(--text); }
   
-  /* Make date picker icon visible in dark mode */
   input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; cursor: pointer; }
   [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
 
@@ -208,7 +207,7 @@
 
 <div id="loader">
   <div class="spinner"></div>
-  <h2 style="font-family: var(--font-display);">Syncing Data...</h2>
+  <h2 style="font-family: var(--font-display);">Syncing Latest Data...</h2>
 </div>
 
 <div class="container" style="display: none;" id="main-content">
@@ -268,11 +267,18 @@
 
   <div class="dashboard-grid">
     <div class="glass-panel">
-      <div class="chart-title">Expense By User Comparison</div>
+      <div class="chart-title">Expense By User</div>
       <div class="chart-container"><canvas id="userExpenseChart"></canvas></div>
     </div>
-    <div class="glass-panel" style="grid-column: span 2;">
-      <div class="chart-title">Expense Category Breakdown</div>
+    <div class="glass-panel">
+      <div class="chart-title">Expense Category (Donut)</div>
+      <div class="chart-container"><canvas id="catDonutChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid" style="grid-template-columns: 1fr;">
+    <div class="glass-panel">
+      <div class="chart-title">Expense Category Comparison (Bar)</div>
       <div class="chart-container"><canvas id="barChart"></canvas></div>
     </div>
   </div>
@@ -290,7 +296,6 @@
   let rawData = { transactions: [], users: [] };
   let charts = {};
 
-  // Show/Hide Custom Date Fields
   function toggleCustomDate() {
     const timeFilter = document.getElementById('timeFilter').value;
     const dateContainer = document.getElementById('customDateContainer');
@@ -303,32 +308,34 @@
     }
   }
 
-  // Exact Syncing of Settings from index.html
-  function applySavedTheme() {
+  // Exact Theme and Font Syncing
+  function applySavedTheme(settings) {
     try {
-      const localDB = JSON.parse(localStorage.getItem('moneyProDB_v3') || '{}');
-      if (localDB.settings) {
-        // Sync Background
-        if (localDB.settings.customBg) document.getElementById('app-background').style.backgroundImage = `url(${localDB.settings.customBg})`;
-        if (localDB.settings.bgOpacity !== undefined) document.getElementById('app-background').style.opacity = localDB.settings.bgOpacity;
+      if (settings) {
+        if (settings.customBg) document.getElementById('app-background').style.backgroundImage = `url(${settings.customBg})`;
+        if (settings.bgOpacity !== undefined) document.getElementById('app-background').style.opacity = settings.bgOpacity;
         
-        // Sync Dark/Light Mode
-        if (localDB.settings.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        if (settings.theme === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
         
-        // Sync Custom Fonts
         const root = document.documentElement;
-        if (localDB.settings.fontStyle === 'inter') {
+        if (settings.fontStyle === 'inter') {
           root.style.setProperty('--font-display', "'Inter', sans-serif");
           root.style.setProperty('--font-body', "'Inter', sans-serif");
-        } else if (localDB.settings.fontStyle === 'poppins') {
+        } else if (settings.fontStyle === 'poppins') {
           root.style.setProperty('--font-display', "'Poppins', sans-serif");
           root.style.setProperty('--font-body', "'Poppins', sans-serif");
-        } else if (localDB.settings.fontStyle === 'roboto') {
+        } else if (settings.fontStyle === 'roboto') {
           root.style.setProperty('--font-display', "'Roboto', sans-serif");
           root.style.setProperty('--font-body', "'Roboto', sans-serif");
+        } else {
+          root.style.setProperty('--font-display', "'Syne', sans-serif");
+          root.style.setProperty('--font-body', "'DM Sans', sans-serif");
         }
       }
-      
       if (window.innerWidth < 768) {
         const desktopBtn = document.querySelector('.desktop-only');
         if (desktopBtn) desktopBtn.style.display = 'none';
@@ -336,53 +343,124 @@
     } catch(e) { console.error("Theme load error", e); }
   }
 
-  // Smart Syncing: Checks URL params, fallbacks to local DB URL
-  async function fetchCloudData() {
-    applySavedTheme();
+  // Listen for Cross-Tab data updates
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'moneyProDB_v3' || event.key === 'moneyProDB_v2' || event.key === 'moneyProDB') {
+      loadLocalDataAndRender();
+    }
+  });
+
+  // Master Engine to link index.html perfectly to graph.html
+  function loadLocalDataAndRender() {
+    let localDB = {};
+    try { localDB = JSON.parse(localStorage.getItem('moneyProDB_v3') || localStorage.getItem('moneyProDB_v2') || localStorage.getItem('moneyProDB') || '{}'); } catch(e) {}
     
+    applySavedTheme(localDB.settings);
+
+    let activeId = localDB.settings?.activeSheetId || 'default';
     let sheetUrl = new URLSearchParams(window.location.search).get('url');
+
+    // Smart Matching: If index.html sent us a URL, automatically find that exact workspace history
+    if (sheetUrl && localDB.settings?.sheets) {
+      const matchedSheet = localDB.settings.sheets.find(s => s.url === sheetUrl);
+      if (matchedSheet) activeId = matchedSheet.id;
+    }
+
+    let hasData = false;
+    if (localDB.workspaces && localDB.workspaces[activeId]) {
+      rawData.transactions = localDB.workspaces[activeId].transactions || [];
+      rawData.users = localDB.workspaces[activeId].users || [];
+      hasData = rawData.transactions.length > 0 || rawData.users.length > 0;
+    } else if (localDB.transactions) {
+      // Legacy Fallback
+      rawData.transactions = localDB.transactions || [];
+      rawData.users = localDB.users || [];
+      hasData = rawData.transactions.length > 0 || rawData.users.length > 0;
+    }
+
+    if (hasData) {
+      populateFiltersAndRender();
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+    }
     
-    // Auto-detect URL if missing from link
-    if (!sheetUrl) {
+    return { hasData, localDB, activeId, sheetUrl };
+  }
+
+  // Dual Sync process: Local immediately -> Cloud in the background
+  async function fetchCloudData() {
+    // 1. Pull data directly from index.html's storage instantly
+    const { hasData, localDB, activeId, sheetUrl } = loadLocalDataAndRender();
+
+    // 2. Resolve the final Google Sheet URL
+    let finalUrl = sheetUrl;
+    if (!finalUrl) {
+      const activeSheet = localDB.settings?.sheets?.find(s => s.id === activeId);
+      if (activeSheet && activeSheet.url) finalUrl = activeSheet.url;
+    }
+
+    // 3. Verify with Google Sheet database
+    if (finalUrl && navigator.onLine) {
       try {
-        const localDB = JSON.parse(localStorage.getItem('moneyProDB_v3') || '{}');
-        const activeId = localDB.settings?.activeSheetId;
-        const activeSheet = localDB.settings?.sheets?.find(s => s.id === activeId);
-        if (activeSheet && activeSheet.url) sheetUrl = activeSheet.url;
-      } catch(e) {}
-    }
-
-    if (!sheetUrl) {
-      alert("No Google Sheet URL found. Please connect a sheet in the main app.");
-      window.location.href = 'index.html';
-      return;
-    }
-
-    try {
-      const response = await fetch(sheetUrl, {
-        method: 'POST',
-        body: JSON.stringify({ syncQueue: [] }),
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-      });
-      const data = await response.json();
-      
-      if (data.status === 'success') {
-        rawData.transactions = data.transactions || [];
-        rawData.users = data.users || [];
+        if (!hasData) document.getElementById('loader').style.display = 'flex';
         
-        populateUserFilter();
-        populateCategoryFilter();
-        applyFilters();
+        const pendingQueue = localDB.workspaces?.[activeId]?.syncQueue || localDB.syncQueue || [];
         
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-      } else {
-        throw new Error(data.message || 'Failed to fetch');
+        const response = await fetch(finalUrl, {
+          method: 'POST',
+          body: JSON.stringify({ syncQueue: pendingQueue }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          rawData.transactions = data.transactions || rawData.transactions;
+          rawData.users = data.users || rawData.users;
+          
+          populateFiltersAndRender();
+          document.getElementById('loader').style.display = 'none';
+          document.getElementById('main-content').style.display = 'block';
+          
+          // Securely save the fresh Cloud data back so index.html is also updated
+          if (localDB.workspaces && localDB.workspaces[activeId]) {
+            localDB.workspaces[activeId].transactions = rawData.transactions;
+            localDB.workspaces[activeId].users = rawData.users;
+            localDB.workspaces[activeId].syncQueue = [];
+          } else {
+            localDB.transactions = rawData.transactions;
+            localDB.users = rawData.users;
+            localDB.syncQueue = [];
+          }
+          if (!localDB.settings) localDB.settings = {};
+          localDB.settings.lastSync = Date.now();
+          localStorage.setItem('moneyProDB_v3', JSON.stringify(localDB));
+        }
+      } catch (err) {
+        console.warn("Cloud sync failed. Utilizing local data.", err);
+        if (!hasData) {
+          alert("Error connecting to Google Sheet: " + err.message);
+          document.getElementById('loader').innerHTML = '<h2>Failed to load data.</h2><button class="btn" onclick="window.location.href=\'index.html\'">Go Back</button>';
+        }
       }
-    } catch (err) {
-      alert("Error syncing data from cloud: " + err.message);
-      document.getElementById('loader').innerHTML = '<h2>Failed to load data.</h2><button class="btn" onclick="window.location.href=\'index.html\'">Go Back</button>';
+    } else if (!hasData) {
+      document.getElementById('loader').innerHTML = '<h2>No Data Found.</h2><p style="text-align:center; font-size:12px; color:var(--text-dim);">Please add transactions or paste your sheet URL in the app first.</p><br><button class="btn" onclick="window.location.href=\'index.html\'">Go Back</button>';
     }
+  }
+
+  function populateFiltersAndRender() {
+    const currUser = document.getElementById('userFilter').value;
+    const currCat = document.getElementById('catFilter').value;
+    
+    document.getElementById('userFilter').innerHTML = '<option value="all">All Users</option>';
+    document.getElementById('catFilter').innerHTML = '<option value="all">All Categories</option>';
+    
+    populateUserFilter();
+    populateCategoryFilter();
+    
+    if (document.querySelector(`#userFilter option[value="${currUser}"]`)) document.getElementById('userFilter').value = currUser;
+    if (document.querySelector(`#catFilter option[value="${currCat}"]`)) document.getElementById('catFilter').value = currCat;
+    
+    applyFilters();
   }
 
   function getUserName(uid) {
@@ -420,7 +498,6 @@
     });
   }
 
-  // Precise Time Filter Logic (Includes Custom Range)
   function applyFilters() {
     const user = document.getElementById('userFilter').value;
     const cat = document.getElementById('catFilter').value;
@@ -428,17 +505,14 @@
     
     let filtered = rawData.transactions;
 
-    // Filter by User
     if (user !== 'all') {
       filtered = filtered.filter(t => t.userId === user);
     }
 
-    // Filter by Category
     if (cat !== 'all') {
       filtered = filtered.filter(t => t.type === 'income' || t.category === cat);
     }
 
-    // Filter by Time
     const now = new Date();
     const currYear = now.getFullYear();
     const currMonth = now.getMonth();
@@ -447,14 +521,19 @@
     filtered = filtered.filter(t => {
       if (!t.date) return false;
       
-      const dateParts = t.date.split('T')[0].split('-');
-      if (dateParts.length !== 3) return false;
+      let tDateObj;
+      if (t.date.includes('-')) {
+        const dateParts = t.date.split('T')[0].split('-');
+        tDateObj = new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10));
+      } else {
+        tDateObj = new Date(t.date);
+      }
       
-      const tYear = parseInt(dateParts[0], 10);
-      const tMonth = parseInt(dateParts[1], 10) - 1; 
-      const tDay = parseInt(dateParts[2], 10);
-      
-      const tDateObj = new Date(tYear, tMonth, tDay);
+      if (isNaN(tDateObj)) return false;
+
+      const tYear = tDateObj.getFullYear();
+      const tMonth = tDateObj.getMonth();
+      const tDay = tDateObj.getDate();
 
       if (time === 'day') {
         return tYear === currYear && tMonth === currMonth && tDay === currDay;
@@ -479,7 +558,7 @@
           return tDateObj >= sDate && tDateObj <= eDate;
         }
       }
-      return true; // 'all' or empty custom
+      return true;
     });
 
     updateDashboard(filtered);
@@ -517,11 +596,13 @@
 
     renderDonutChart(sumInc, sumExp);
     renderLineChart(timeline);
-    renderBarChart(categories);
     renderUserComparisonChart(userExpenses);
+    
+    // Pass category data to both Bar Chart and new Donut Chart
+    renderBarChart(categories);
+    renderCatDonutChart(categories);
   }
 
-  // --- CHART RENDERING ---
   Chart.defaults.color = '#cbd5e1';
   Chart.defaults.font.family = "'DM Sans', sans-serif";
 
@@ -552,8 +633,12 @@
 
     const sortedDates = Object.keys(timelineData).sort();
     const labels = sortedDates.map(d => {
-      const parts = d.split('-'); return `${parts[2]}/${parts[1]}`; 
+      if(d.includes('-')) {
+        const parts = d.split('-'); return `${parts[2]}/${parts[1]}`; 
+      }
+      return d;
     });
+    
     const incData = sortedDates.map(d => timelineData[d].in);
     const expData = sortedDates.map(d => timelineData[d].out);
 
@@ -570,32 +655,6 @@
         responsive: true, maintainAspectRatio: false,
         scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } },
         interaction: { mode: 'index', intersect: false }
-      }
-    });
-  }
-
-  function renderBarChart(catData) {
-    const ctx = document.getElementById('barChart');
-    if (charts.bar) charts.bar.destroy();
-
-    const sortedCats = Object.keys(catData).sort((a,b) => catData[b] - catData[a]);
-    const values = sortedCats.map(c => catData[c]);
-
-    charts.bar = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: sortedCats,
-        datasets: [{
-          label: 'Expenses',
-          data: values,
-          backgroundColor: '#60a5fa',
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } },
-        plugins: { legend: { display: false } }
       }
     });
   }
@@ -623,6 +682,62 @@
       options: {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { position: 'bottom' } }
+      }
+    });
+  }
+
+  // --- NEW: Category Donut Chart ---
+  function renderCatDonutChart(catData) {
+    const ctx = document.getElementById('catDonutChart');
+    if (charts.catDonut) charts.catDonut.destroy();
+
+    const sortedCats = Object.keys(catData).sort((a,b) => catData[b] - catData[a]);
+    const values = sortedCats.map(c => catData[c]);
+    
+    const colors = ['#fb7185', '#60a5fa', '#34d399', '#fbbf24', '#c084fc', '#f472b6', '#38bdf8', '#4ade80', '#facc15', '#a78bfa', '#e879f9', '#2dd4bf'];
+
+    charts.catDonut = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: sortedCats,
+        datasets: [{
+          data: values,
+          backgroundColor: colors.slice(0, sortedCats.length),
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { boxWidth: 12 } } },
+        cutout: '60%'
+      }
+    });
+  }
+
+  // --- Category Bar Chart ---
+  function renderBarChart(catData) {
+    const ctx = document.getElementById('barChart');
+    if (charts.bar) charts.bar.destroy();
+
+    const sortedCats = Object.keys(catData).sort((a,b) => catData[b] - catData[a]);
+    const values = sortedCats.map(c => catData[c]);
+
+    charts.bar = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: sortedCats,
+        datasets: [{
+          label: 'Expenses',
+          data: values,
+          backgroundColor: '#60a5fa',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } },
+        plugins: { legend: { display: false } }
       }
     });
   }
